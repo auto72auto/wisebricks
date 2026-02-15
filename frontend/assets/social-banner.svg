@@ -1,0 +1,8 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="500" viewBox="0 0 1500 500">
+  <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#7c3aed"/><stop offset="100%" stop-color="#2563eb"/></linearGradient></defs>
+  <rect width="1500" height="500" fill="#ffffff"/>
+  <rect y="0" width="1500" height="8" fill="url(#g)"/>
+  <text x="80" y="210" font-size="88" font-family="Plus Jakarta Sans, Segoe UI, sans-serif" font-weight="800" fill="#111827">Wise</text>
+  <text x="308" y="210" font-size="88" font-family="Plus Jakarta Sans, Segoe UI, sans-serif" font-weight="700" fill="url(#g)">Bricks</text>
+  <text x="80" y="272" font-size="34" font-family="Plus Jakarta Sans, Segoe UI, sans-serif" fill="#6b7280">LEGO price intelligence for UK buyers</text>
+</svg>

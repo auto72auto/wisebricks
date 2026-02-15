@@ -1,9 +1,9 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang='en-GB'>
 <head>
   <meta charset='utf-8' />
   <meta name='viewport' content='width=device-width, initial-scale=1' />
-  <title>Search Results | Branded Desktop Example</title>
+  <title>Search Results | Wise Bricks</title>
   <link rel='preconnect' href='https://fonts.googleapis.com' />
   <link rel='preconnect' href='https://fonts.gstatic.com' crossorigin />
   <link href='https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap' rel='stylesheet' />
@@ -19,34 +19,31 @@
         <div><div class='logo-text'>Wise Bricks</div><div class='logo-sub'>UK LEGO price intelligence</div></div>
       </a>
       <nav class='nav'>
-        <a href='index.html' >Home</a>
-        <a href='set-page.html' >Set Page</a>
-        <a href='search-results.html' style="border-color:var(--purple)">Search</a>
-        <a href='price-drops.html' >Price Drops</a>
-        <a href='theme-hub.html' >Theme Hub</a>
-        <a href='reviews/index.html' >Review</a>
-        <a href='methodology.html' >Methodology</a>
-        <a href='about-contact.html' >About</a>
+        <a href='index.html'>Home</a>
+        <a href='set-page.html'>Set Page</a>
+        <a href='search-results.html' style='border-color:var(--purple)'>Search</a>
+        <a href='price-drops.html'>Price Drops</a>
+        <a href='theme-hub.html'>Theme Hub</a>
+        <a href='reviews/index.html'>Review</a>
+        <a href='methodology.html'>Methodology</a>
+        <a href='about-contact.html'>About</a>
       </nav>
     </div>
   </header>
   <main>
-<section class="hero">
-  <span class="badge">Set discovery</span>
-  <h1>Search LEGO sets</h1>
-  <p>Matches exact set number first, then title relevance.</p>
-  <div class="searchbar"><input value="rivendell 10316" /><a class="btn" href="#results">Search</a></div>
-</section>
-<section class="kpi-strip"><article class="kpi-item"><span class="label">Results</span><span class="value">24 matches</span></article><article class="kpi-item"><span class="label">Exact matches</span><span class="value">1</span></article><article class="kpi-item"><span class="label">In stock now</span><span class="value">19</span></article></section>
-<section class="layout-2col" id="results">
-  <article class="card"><span class="badge">Exact set number</span><h3>10316 - Rivendell</h3><p class="muted">Route to canonical set page with pricing timeline and review context.</p><a class="btn" href="set-page.html">Open Set Page</a></article>
-  <article class="card"><h3>10305 - Lion Knights' Castle</h3><p class="muted">Best current: GBP 289.99 | Lowest tracked: GBP 269.99</p><a class="btn" href="set-page.html">View Pricing</a></article>
-</section>
-<section class="grid"><article class="card"><h3>21325 - Medieval Blacksmith</h3><p class="muted">Best current: GBP 134.99</p></article><article class="card"><h3>10294 - Titanic</h3><p class="muted">Best current: GBP 539.99</p></article><article class="card"><h3>76419 - Hogwarts Castle and Grounds</h3><p class="muted">Best current: GBP 129.99</p></article></section>
+    <section class='hero'>
+      <span class='badge'>Set discovery</span>
+      <h1>Search LEGO sets in database</h1>
+      <p>Searches <code>core.sets</code> by set number, title, and theme.</p>
+      <form class='searchbar' id='search-form'>
+        <input id='search-input' placeholder='e.g. 10316 or Rivendell' />
+        <button class='btn' type='submit'>Search</button>
+      </form>
+      <p class='muted' id='search-status'>Ready</p>
+    </section>
+    <section class='grid' id='results'></section>
   </main>
-  <footer class='footer'>Desktop branded example. Mobile pair in ../examples-mobile/</footer>
+  <footer class='footer'>Results are loaded from Neon Postgres</footer>
+  <script type='module' src='./js/search-results.js'></script>
 </body>
 </html>
-
-
-

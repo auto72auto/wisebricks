@@ -1,9 +1,9 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang='en-GB'>
 <head>
   <meta charset='utf-8' />
   <meta name='viewport' content='width=device-width, initial-scale=1' />
-  <title>Set Page | Branded Desktop Example</title>
+  <title>Set Page | Wise Bricks</title>
   <link rel='preconnect' href='https://fonts.googleapis.com' />
   <link rel='preconnect' href='https://fonts.gstatic.com' crossorigin />
   <link href='https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap' rel='stylesheet' />
@@ -19,43 +19,34 @@
         <div><div class='logo-text'>Wise Bricks</div><div class='logo-sub'>UK LEGO price intelligence</div></div>
       </a>
       <nav class='nav'>
-        <a href='index.html' >Home</a>
-        <a href='set-page.html' style="border-color:var(--purple)">Set Page</a>
-        <a href='search-results.html' >Search</a>
-        <a href='price-drops.html' >Price Drops</a>
-        <a href='theme-hub.html' >Theme Hub</a>
-        <a href='reviews/index.html' >Review</a>
-        <a href='methodology.html' >Methodology</a>
-        <a href='about-contact.html' >About</a>
+        <a href='index.html'>Home</a>
+        <a href='set-page.html' style='border-color:var(--purple)'>Set Page</a>
+        <a href='search-results.html'>Search</a>
+        <a href='price-drops.html'>Price Drops</a>
+        <a href='theme-hub.html'>Theme Hub</a>
+        <a href='reviews/index.html'>Review</a>
+        <a href='methodology.html'>Methodology</a>
+        <a href='about-contact.html'>About</a>
       </nav>
     </div>
   </header>
   <main>
-<section class="hero-two">
-  <section class="hero">
-    <span class="badge">Set 10316</span> <span class="badge-soft">LEGO Icons</span>
-    <h1>The Lord of the Rings: Rivendell</h1>
-    <p>Set Number: <strong>10316</strong> | Release Year: <strong>2023</strong> | Pieces: <strong>6,167</strong> | UK RRP: <strong>GBP 429.99</strong></p>
-    <div class="meta-grid">
-      <article class="card"><strong>Age Range</strong><br/>18+</article>
-      <article class="card"><strong>Minifigures</strong><br/>15</article>
-      <article class="card"><strong>Stock Snapshot</strong><br/>5 In / 1 Out</article>
-      <article class="card"><strong>Tracking Since</strong><br/>2025-01-01</article>
-    </div>
-  </section>
-  <article class="card hero-media">Set hero placeholder<br/>Rivendell 10316</article>
-</section>
-<section class="kpi-strip">
-  <article class="kpi-item"><span class="label">Best Current</span><span class="value">GBP 379.99</span></article>
-  <article class="kpi-item"><span class="label">Lowest Tracked</span><span class="value">GBP 359.99</span></article>
-  <article class="kpi-item"><span class="label">Discount vs RRP</span><span class="value">-11.6%</span></article>
-</section>
-<article class="best-price"><span class="label">Best current UK price</span><span class="value">GBP 379.99</span><p class="note">Timestamp: 2026-02-14 09:30 UK</p></article>
-<section class="layout-2col"><article class="card"><h3>Current UK Retailer Prices</h3><table class="table"><thead><tr><th>Retailer</th><th>Price</th><th>% vs RRP</th><th>Stock</th></tr></thead><tbody><tr><td>John Lewis</td><td>GBP 379.99</td><td>-11.6%</td><td>In stock</td></tr><tr><td>Very</td><td>GBP 389.00</td><td>-9.5%</td><td>In stock</td></tr><tr><td>LEGO UK</td><td>GBP 429.99</td><td>0%</td><td>In stock</td></tr></tbody></table></article><article class="card"><h3>Price History Snapshot</h3><svg class="sparkline" viewBox="0 0 420 120"><line class="axis" x1="35" y1="16" x2="35" y2="100"></line><line class="axis" x1="35" y1="100" x2="400" y2="100"></line><polyline class="line" points="35,86 90,83 145,81 200,77 255,73 310,66 365,62"></polyline><text x="40" y="114">Jan 2025</text><text x="340" y="114">Feb 2026</text></svg><p class="note">Lowest tracked price is based on observed UK retailer data.</p></article></section>
+    <section class='hero-two'>
+      <section class='hero'>
+        <span class='badge' id='set-badge'>Set</span> <span class='badge-soft' id='set-status'>Loading...</span>
+        <h1 id='set-title'>Loading set...</h1>
+        <p id='set-summary'>Loading static set information from database.</p>
+        <div class='meta-grid'>
+          <article class='card'><strong>Set Number</strong><br/><span id='meta-set-number'>...</span></article>
+          <article class='card'><strong>Release Year</strong><br/><span id='meta-release-year'>...</span></article>
+          <article class='card'><strong>Pieces</strong><br/><span id='meta-pieces'>...</span></article>
+          <article class='card'><strong>Theme</strong><br/><span id='meta-theme'>...</span></article>
+        </div>
+      </section>
+      <article class='card hero-media'>Set data is now DB-backed via <code>core.sets</code></article>
+    </section>
   </main>
-  <footer class='footer'>Desktop branded example. Mobile pair in ../examples-mobile/</footer>
+  <footer class='footer'>Static content replaced with live DB reads</footer>
+  <script type='module' src='./js/set-page.js'></script>
 </body>
 </html>
-
-
-

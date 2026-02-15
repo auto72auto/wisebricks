@@ -1,0 +1,8 @@
+﻿{
+  "name": "wise-bricks-frontend",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@neondatabase/serverless": "^0.10.4"
+  }
+}

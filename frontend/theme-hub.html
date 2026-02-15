@@ -1,9 +1,9 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang='en-GB'>
 <head>
   <meta charset='utf-8' />
   <meta name='viewport' content='width=device-width, initial-scale=1' />
-  <title>Theme Hub | Branded Desktop Example</title>
+  <title>Theme Hub | Wise Bricks</title>
   <link rel='preconnect' href='https://fonts.googleapis.com' />
   <link rel='preconnect' href='https://fonts.gstatic.com' crossorigin />
   <link href='https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap' rel='stylesheet' />
@@ -19,24 +19,32 @@
         <div><div class='logo-text'>Wise Bricks</div><div class='logo-sub'>UK LEGO price intelligence</div></div>
       </a>
       <nav class='nav'>
-        <a href='index.html' >Home</a>
-        <a href='set-page.html' >Set Page</a>
-        <a href='search-results.html' >Search</a>
-        <a href='price-drops.html' >Price Drops</a>
-        <a href='theme-hub.html' style="border-color:var(--purple)">Theme Hub</a>
-        <a href='reviews/index.html' >Review</a>
-        <a href='methodology.html' >Methodology</a>
-        <a href='about-contact.html' >About</a>
+        <a href='index.html'>Home</a>
+        <a href='set-page.html'>Set Page</a>
+        <a href='search-results.html'>Search</a>
+        <a href='price-drops.html'>Price Drops</a>
+        <a href='theme-hub.html' style='border-color:var(--purple)'>Theme Hub</a>
+        <a href='reviews/index.html'>Review</a>
+        <a href='methodology.html'>Methodology</a>
+        <a href='about-contact.html'>About</a>
       </nav>
     </div>
   </header>
   <main>
-<section class="hero-two"><section class="hero"><span class="badge">Theme Hub</span> <span class="badge-soft">Icons</span><h1>Theme performance view: LEGO Icons</h1><p>Compare discount depth, stock coverage, and volatility inside one theme.</p><div class="meta-grid"><article class="card"><strong>Sets</strong><br/>84 tracked</article><article class="card"><strong>Median discount</strong><br/>9.8%</article><article class="card"><strong>Best value cluster</strong><br/>Botanicals</article><article class="card"><strong>Most volatile</strong><br/>10294 Titanic</article></div></section><article class="card hero-media">Theme hero placeholder<br/>Icons macro trend</article></section>
-<section class="layout-2col"><article class="card"><h3>Theme leaderboard</h3><table class="table"><thead><tr><th>Set</th><th>Best Price</th><th>Discount</th></tr></thead><tbody><tr><td>10329 Tiny Plants</td><td>GBP 35.99</td><td>-20.0%</td></tr><tr><td>10311 Orchid</td><td>GBP 33.99</td><td>-15.0%</td></tr><tr><td>10316 Rivendell</td><td>GBP 379.99</td><td>-11.6%</td></tr></tbody></table></article><article class="card"><h3>How to use this hub</h3><ul class="list"><li>Start with deepest discounts.</li><li>Check low-stock sets to avoid missing availability windows.</li><li>Open a set page for historical context and retailer split.</li></ul><a class="btn" href="search-results.html">Search within theme</a></article></section>
+    <section class='hero'>
+      <span class='badge'>Theme Hub</span>
+      <h1>Theme summary from database</h1>
+      <p class='muted' id='theme-status'>Loading...</p>
+    </section>
+    <article class='card' style='margin-top:16px'>
+      <h3>Theme leaderboard</h3>
+      <table class='table'>
+        <thead><tr><th>Theme</th><th>Sets</th><th>Latest release year</th><th>Avg pieces</th></tr></thead>
+        <tbody id='theme-rows'></tbody>
+      </table>
+    </article>
   </main>
-  <footer class='footer'>Desktop branded example. Mobile pair in ../examples-mobile/</footer>
+  <footer class='footer'>Theme metrics are loaded from core.sets</footer>
+  <script type='module' src='./js/theme-hub.js'></script>
 </body>
 </html>
-
-
-

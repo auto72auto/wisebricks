@@ -45,6 +45,32 @@
       </section>
       <article class='card hero-media'>Set data is now DB-backed via <code>core.sets</code></article>
     </section>
+    <section class='layout-2col'>
+      <article class='card'>
+        <h3>Current UK Retailer Prices</h3>
+        <table class='table'>
+          <thead>
+            <tr>
+              <th>Retailer</th>
+              <th>Price</th>
+              <th>% vs RRP</th>
+              <th>Stock</th>
+              <th>Link</th>
+            </tr>
+          </thead>
+          <tbody id='retailer-table-body'>
+            <tr>
+              <td colspan='5'>Loading retailer data...</td>
+            </tr>
+          </tbody>
+        </table>
+      </article>
+      <article class='card'>
+        <h3>Retailer Link Rules</h3>
+        <p class='note'>Only retailers with a valid stored product URL are shown.</p>
+        <p class='note'>Where live price data is unavailable, values display as <strong>Click to check</strong>.</p>
+      </article>
+    </section>
   </main>
   <footer class='footer'>Static content replaced with live DB reads</footer>
   <script type='module' src='./js/set-page.js'></script>

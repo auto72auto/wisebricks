@@ -4,6 +4,7 @@
   <meta charset='utf-8' />
   <meta name='viewport' content='width=device-width, initial-scale=1' />
   <title>Set Page | Wise Bricks</title>
+  <link rel='canonical' href='https://wisebricks.co.uk/set-page' />
   <link rel='preconnect' href='https://fonts.googleapis.com' />
   <link rel='preconnect' href='https://fonts.gstatic.com' crossorigin />
   <link href='https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap' rel='stylesheet' />
@@ -48,6 +49,7 @@
     <section class='layout-2col'>
       <article class='card'>
         <h3>Current UK Retailer Prices</h3>
+        <p class='note'><strong>Best price:</strong> Click to check retailers</p>
         <table class='table'>
           <thead>
             <tr>
@@ -69,10 +71,21 @@
         <h3>Retailer Link Rules</h3>
         <p class='note'>Only retailers with a valid stored product URL are shown.</p>
         <p class='note'>Where live price data is unavailable, values display as <strong>Click to check</strong>.</p>
+        <p class='note'><strong>Affiliate disclosure:</strong> Retailer links may earn us a commission at no extra cost to you.</p>
+        <p class='note'><strong>Last checked:</strong> <span id='last-checked'>Unavailable</span></p>
+        <p class='note'><strong>Tracking since:</strong> <span id='tracking-since'>Unavailable</span></p>
+        <p class='note'><a href='methodology.html'>Read methodology</a> for pricing, freshness, and source rules.</p>
+      </article>
+    </section>
+    <section class='layout-2col' style='margin-top:16px'>
+      <article class='card'>
+        <h3>Review Summary</h3>
+        <p id='review-summary'>Editorial review highlights are published for selected sets in our Reviews section.</p>
+        <a class='btn' href='reviews/index.html'>Read set reviews</a>
       </article>
     </section>
   </main>
   <footer class='footer'>Static content replaced with live DB reads</footer>
-  <script type='module' src='./js/set-page.js?v=20260216-1'></script>
+  <script type='module' src='./js/set-page.js?v=20260216-2'></script>
 </body>
 </html>

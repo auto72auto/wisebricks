@@ -53,6 +53,13 @@ function renderRetailers(rows) {
     .join("");
 }
 
+function fmtIsoDate(value) {
+  if (!value) return "Unavailable";
+  const dt = new Date(value);
+  if (Number.isNaN(dt.getTime())) return "Unavailable";
+  return dt.toISOString().slice(0, 10);
+}
+
 async function init() {
   const params = new URLSearchParams(window.location.search);
   const setNumber = (params.get("set") || "75325").trim();
@@ -73,11 +80,16 @@ async function init() {
     setText("meta-release-year", fmtYear(set.release_year));
     setText("meta-pieces", fmtInt(set.pieces));
     setText("meta-theme", set.theme || "Unavailable");
+    setText("review-summary", `${set.title || "This set"} review notes are available in our Reviews section.`);
     renderRetailers(payload.retailers);
+    setText("last-checked", fmtIsoDate(payload.last_checked || set.last_checked || payload.checked_at || payload.observed_at));
+    setText("tracking-since", fmtIsoDate(payload.tracking_since || set.tracking_since || payload.first_seen_at));
     setText("set-status", "Live from database");
   } catch (error) {
     setText("set-status", `Error: ${error.message}`);
     renderRetailers([]);
+    setText("last-checked", "Unavailable");
+    setText("tracking-since", "Unavailable");
   }
 }
 

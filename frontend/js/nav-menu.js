@@ -10,17 +10,24 @@
   }
 
   function insertSiteDisclaimer() {
-    if (document.querySelector(".site-disclaimer")) return;
+    if (document.querySelector(".footer-disclaimer")) return;
 
+    var footer = document.querySelector("footer.footer") || document.querySelector("footer");
     var main = document.querySelector("main");
-    if (!main) return;
+    if (!footer && !main) return;
 
-    var disclaimer = document.createElement("section");
-    disclaimer.className = "site-disclaimer";
+    var disclaimer = document.createElement("p");
+    disclaimer.className = "footer-disclaimer";
     disclaimer.setAttribute("role", "note");
     disclaimer.textContent = "Wise Bricks is an independent fan-run LEGO research and comparison site. LEGO is a trademark of the LEGO Group, which does not sponsor, authorize, or endorse this site.";
 
-    main.insertAdjacentElement("afterbegin", disclaimer);
+    if (footer) {
+      footer.appendChild(disclaimer);
+      return;
+    }
+
+    // Fallback for pages without a footer.
+    main.appendChild(disclaimer);
   }
 
   function initNav(nav) {

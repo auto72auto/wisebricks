@@ -139,6 +139,13 @@ main { max-width: 1120px; margin: 0 auto; padding: 28px 24px 48px; }
   font-size: 0.85rem;
   padding: 18px;
 }
+.footer-disclaimer {
+  margin: 8px auto 0;
+  max-width: 1120px;
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
 .badge {
   display: inline-block;
   font-size: 0.75rem;

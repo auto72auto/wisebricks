@@ -1,4 +1,4 @@
-﻿:root {
+:root {
   --purple: #7c3aed;
   --blue: #2563eb;
   --green: #059669;
@@ -50,6 +50,44 @@ body {
   padding-bottom: 2px;
 }
 .nav a:hover { border-color: var(--purple); }
+.nav-group {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+.nav-parent {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.nav-parent::after {
+  content: "\25BE";
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+}
+.nav-submenu {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  min-width: 160px;
+  display: none;
+  flex-direction: column;
+  gap: 6px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-card);
+  padding: 8px;
+  z-index: 20;
+}
+.nav-submenu a {
+  padding: 4px 2px;
+  white-space: nowrap;
+}
+.nav-group:hover .nav-submenu,
+.nav-group:focus-within .nav-submenu {
+  display: flex;
+}
 main { max-width: 1120px; margin: 0 auto; padding: 28px 24px 48px; }
 .hero {
   background: var(--surface);
@@ -110,6 +148,9 @@ main { max-width: 1120px; margin: 0 auto; padding: 28px 24px 48px; }
   border-radius: 999px;
 }
 @media (max-width: 740px) {
+  .nav-group { width: 100%; align-items: flex-start; }
+  .nav-submenu { position: static; display: flex; min-width: 0; border: 0; box-shadow: none; padding: 0 0 0 12px; }
   .header-inner { align-items: flex-start; }
   .hero h1 { font-size: 1.6rem; }
 }
+

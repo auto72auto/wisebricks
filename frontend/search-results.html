@@ -19,15 +19,23 @@
         <img src='./assets/logo-icon.svg' alt='Wise Bricks' />
         <div><div class='logo-text'>Wise Bricks</div><div class='logo-sub'>UK LEGO price intelligence</div></div>
       </a>
-      <nav class='nav'>
+                  <nav class='nav'>
         <a href='index.html'>Home</a>
-        <a href='set-page.html'>Set Page</a>
         <a href='search-results.html' style='border-color:var(--purple)'>Search</a>
         <a href='price-drops.html'>Price Drops</a>
-        <a href='theme-hub.html'>Theme Hub</a>
-        <a href='reviews/index.html'>Review</a>
-        <a href='methodology.html'>Methodology</a>
-        <a href='about-contact.html'>About</a>
+        <div class='nav-group'>
+          <a class='nav-parent' href='search-results.html'>All Sets</a>
+          <div class='nav-submenu'>
+            <a href='theme-hub.html'>Themes</a>
+            <a href='reviews/index.html'>Reviews</a>
+          </div>
+        </div>
+        <div class='nav-group'>
+          <a class='nav-parent' href='about-contact.html'>About</a>
+          <div class='nav-submenu'>
+            <a href='methodology.html'>Methodology</a>
+          </div>
+        </div>
       </nav>
     </div>
   </header>
@@ -48,3 +56,5 @@
   <script type='module' src='./js/search-results.js'></script>
 </body>
 </html>
+
+

@@ -1,4 +1,5 @@
 import { apiGet, fmtInt, fmtYear, fmtGbp } from "./api-client.js";
+import { getReviewForSet } from "./review-map.js";
 
 function setText(id, value) {
   const el = document.getElementById(id);
@@ -60,6 +61,26 @@ function fmtIsoDate(value) {
   return dt.toISOString().slice(0, 10);
 }
 
+function updateReviewBlock(setNumber, fallbackTitle) {
+  const review = getReviewForSet(setNumber);
+  const linkEl = document.getElementById("review-link");
+
+  if (!review) {
+    setText("review-summary", `No full review is published yet for ${fallbackTitle || `set ${setNumber}`}.`);
+    if (linkEl) {
+      linkEl.href = "reviews/index.html";
+      linkEl.textContent = "Browse available reviews";
+    }
+    return;
+  }
+
+  setText("review-summary", review.summary || `${review.title || fallbackTitle || `Set ${setNumber}`} review available.`);
+  if (linkEl) {
+    linkEl.href = review.href;
+    linkEl.textContent = "Read full review";
+  }
+}
+
 async function init() {
   const params = new URLSearchParams(window.location.search);
   const setNumber = (params.get("set") || "75325").trim();
@@ -80,7 +101,7 @@ async function init() {
     setText("meta-release-year", fmtYear(set.release_year));
     setText("meta-pieces", fmtInt(set.pieces));
     setText("meta-theme", set.theme || "Unavailable");
-    setText("review-summary", `${set.title || "This set"} review notes are available in our Reviews section.`);
+    updateReviewBlock(set.set_number || setNumber, set.title || "this set");
     renderRetailers(payload.retailers);
     setText("last-checked", fmtIsoDate(payload.last_checked || set.last_checked || payload.checked_at || payload.observed_at));
     setText("tracking-since", fmtIsoDate(payload.tracking_since || set.tracking_since || payload.first_seen_at));
@@ -90,6 +111,7 @@ async function init() {
     renderRetailers([]);
     setText("last-checked", "Unavailable");
     setText("tracking-since", "Unavailable");
+    updateReviewBlock(setNumber, "this set");
   }
 }
 

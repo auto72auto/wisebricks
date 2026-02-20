@@ -244,6 +244,9 @@ main { max-width: 1120px; margin: 0 auto; padding: 28px 24px 48px; }
 .search-status-row {
   margin: 0;
 }
+.results-sentinel {
+  height: 1px;
+}
 .footer {
   border-top: 1px solid var(--border);
   background: var(--surface);

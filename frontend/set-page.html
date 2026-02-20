@@ -52,7 +52,10 @@
           <article class='card'><strong>Theme</strong><br/><span id='meta-theme'>...</span></article>
         </div>
       </section>
-      <article class='card hero-media'>Set data is now DB-backed via <code>core.sets</code></article>
+      <article class='card hero-media set-hero-media'>
+        <img id='set-hero-image' src='' alt='Set hero image' loading='eager' />
+        <p id='set-hero-fallback' class='muted' hidden>Set image unavailable</p>
+      </article>
     </section>
     <section class='layout-2col'>
       <article class='card'>
@@ -94,7 +97,7 @@
     </section>
   </main>
   <footer class='footer'>Static content replaced with live DB reads</footer>
-  <script type='module' src='./js/set-page.js?v=20260216-3'></script>
+  <script type='module' src='./js/set-page.js?v=20260220-1'></script>
   <script src='./js/nav-menu.js'></script>
 </body>
 </html>

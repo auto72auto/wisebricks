@@ -61,6 +61,65 @@ function fmtIsoDate(value) {
   return dt.toISOString().slice(0, 10);
 }
 
+function normalizeImageSetNumber(setNumber) {
+  const raw = String(setNumber || "").trim();
+  if (!raw) return "";
+  const cleaned = raw.replace(/[^0-9A-Za-z_-]/g, "");
+  const variantMatch = cleaned.match(/^([0-9]{3,8})-[0-9]+$/);
+  return variantMatch ? variantMatch[1] : cleaned;
+}
+
+function normalizeImageUrl(value) {
+  const raw = String(value || "").trim();
+  if (!raw) return "";
+  if (/^https?:\/\//i.test(raw) || raw.startsWith("/")) return raw;
+  return `/${raw.replace(/^\.?\//, "")}`;
+}
+
+function renderSetHeroImage(set, requestedSetNumber) {
+  const img = document.getElementById("set-hero-image");
+  const fallback = document.getElementById("set-hero-fallback");
+  if (!img) return;
+
+  const safeSetNo = normalizeImageSetNumber(set?.set_number || requestedSetNumber);
+  const candidates = [
+    normalizeImageUrl(set?.image_hero_url),
+    normalizeImageUrl(set?.image_box_url),
+    normalizeImageUrl(set?.image_thumb_url),
+    safeSetNo ? `/set-images/${encodeURIComponent(safeSetNo)}/hero.jpg` : "",
+    safeSetNo ? `/set-images/${encodeURIComponent(safeSetNo)}/box.jpg` : "",
+    safeSetNo ? `/set-images/${encodeURIComponent(safeSetNo)}/thumb.jpg` : "",
+  ].filter(Boolean);
+
+  const uniqueCandidates = [...new Set(candidates)];
+  img.alt = set?.title ? `${set.title} hero image` : `Set ${safeSetNo || requestedSetNumber} hero image`;
+
+  let index = 0;
+  const tryNext = () => {
+    if (index >= uniqueCandidates.length) {
+      img.hidden = true;
+      if (fallback) fallback.hidden = false;
+      return;
+    }
+    img.src = uniqueCandidates[index];
+    index += 1;
+  };
+
+  img.onerror = () => tryNext();
+  img.onload = () => {
+    img.hidden = false;
+    if (fallback) fallback.hidden = true;
+  };
+
+  if (!uniqueCandidates.length) {
+    img.hidden = true;
+    if (fallback) fallback.hidden = false;
+    return;
+  }
+
+  tryNext();
+}
+
 function updateReviewBlock(setNumber, fallbackTitle) {
   const review = getReviewForSet(setNumber);
   const linkEl = document.getElementById("review-link");
@@ -101,6 +160,7 @@ async function init() {
     setText("meta-release-year", fmtYear(set.release_year));
     setText("meta-pieces", fmtInt(set.pieces));
     setText("meta-theme", set.theme || "Unavailable");
+    renderSetHeroImage(set, set.set_number || setNumber);
     updateReviewBlock(set.set_number || setNumber, set.title || "this set");
     renderRetailers(payload.retailers);
     setText("last-checked", fmtIsoDate(payload.last_checked || set.last_checked || payload.checked_at || payload.observed_at));
@@ -108,6 +168,7 @@ async function init() {
     setText("set-status", "Live from database");
   } catch (error) {
     setText("set-status", `Error: ${error.message}`);
+    renderSetHeroImage({}, setNumber);
     renderRetailers([]);
     setText("last-checked", "Unavailable");
     setText("tracking-since", "Unavailable");

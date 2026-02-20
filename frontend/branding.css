@@ -127,7 +127,7 @@ main { max-width: 1120px; margin: 0 auto; padding: 28px 24px 48px; }
   padding: 10px;
 }
 .search-price-bar {
-  background: var(--green);
+  background: var(--gradient);
   color: #fff;
   display: flex;
   justify-content: space-between;
@@ -139,9 +139,10 @@ main { max-width: 1120px; margin: 0 auto; padding: 28px 24px 48px; }
   font-size: 0.78rem;
   letter-spacing: 0.05em;
   font-weight: 800;
+  opacity: 0.95;
 }
 .search-price-value {
-  font-size: 1.8rem;
+  font-size: 1.65rem;
   font-weight: 800;
   line-height: 1;
 }

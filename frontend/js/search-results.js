@@ -1,4 +1,4 @@
-import { apiGet, fmtInt, fmtYear } from "./api-client.js";
+import { apiGet, fmtInt, fmtYear } from "./api-client.js?v=20260220a";
 
 const PAGE_SIZE = 36;
 const PRICE_BUCKETS = [

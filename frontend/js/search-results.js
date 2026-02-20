@@ -32,13 +32,19 @@ function renderResults(results) {
     const setNo = escapeHtml(rawSetNo || "Unknown");
     const title = escapeHtml(set.title || "Untitled set");
     const imageBlock = safeSetNo
-      ? `<div class='set-card-media'><img class='set-card-image' data-box-image='true' loading='lazy' src='/set-images/${encodeURIComponent(safeSetNo)}/box.jpg' alt='Set ${setNo} in-box image' /></div>`
+      ? `<div class='set-card-media'><img class='set-card-image' data-box-image='true' data-set-no='${escapeHtml(safeSetNo)}' loading='lazy' src='/set-images/${encodeURIComponent(safeSetNo)}/thumb.jpg' alt='Set ${setNo} in-box image' /></div>`
       : "";
     return `<article class='card set-card'><div class='set-card-row'><div class='set-card-text'><h3>${setNo} - ${title}</h3><p class='muted'>Pieces: ${fmtInt(set.pieces)} | Release year: ${fmtYear(set.release_year)}</p></div>${imageBlock}</div><a class='btn' href='/set/${encodeURIComponent(rawSetNo || setNo)}'>Open Set Page</a></article>`;
   }).join("");
 
   container.querySelectorAll("img[data-box-image='true']").forEach((img) => {
     img.addEventListener("error", () => {
+      const setNo = String(img.getAttribute("data-set-no") || "").trim();
+      if (!img.dataset.fallbackTried && setNo) {
+        img.dataset.fallbackTried = "true";
+        img.src = `/set-images/${encodeURIComponent(setNo)}/box.jpg`;
+        return;
+      }
       const media = img.closest(".set-card-media");
       if (media) media.style.display = "none";
     });

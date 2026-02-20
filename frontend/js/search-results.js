@@ -38,7 +38,7 @@ function renderResults(results) {
     const imageBlock = safeSetNo
       ? `<div class='set-card-media'><img class='set-card-image' data-box-image='true' data-set-no='${escapeHtml(safeSetNo)}' loading='lazy' src='/set-images/${encodeURIComponent(safeSetNo)}/thumb.jpg' alt='Set ${setNo} in-box image' /></div>`
       : "";
-    return `<a class='search-result-link' href='/set/${encodeURIComponent(rawSetNo || setNo)}' aria-label='Open set page for ${setNo} ${title}'><article class='card search-result-card'>${imageBlock}<div class='search-price-bar'><span class='search-price-badge'>LEGO SET</span><span class='search-price-value'>${escapeHtml(rrpDisplay)}</span></div><div class='search-result-body'><p class='search-theme'>${theme.toUpperCase()}</p><h3 class='search-title'>${setNo} ${title}</h3><p class='muted search-meta'>Pieces: ${fmtInt(set.pieces)} | Release year: ${fmtYear(set.release_year)} | ${escapeHtml(price)}</p><span class='btn'>Open Set Page</span></div></article></a>`;
+    return `<a class='search-result-link' href='/set-page?set=${encodeURIComponent(rawSetNo || setNo)}' aria-label='Open set page for ${setNo} ${title}'><article class='card search-result-card'>${imageBlock}<div class='search-price-bar'><span class='search-price-badge'>LEGO SET</span><span class='search-price-value'>${escapeHtml(rrpDisplay)}</span></div><div class='search-result-body'><p class='search-theme'>${theme.toUpperCase()}</p><h3 class='search-title'>${setNo} ${title}</h3><p class='muted search-meta'>Pieces: ${fmtInt(set.pieces)} | Release year: ${fmtYear(set.release_year)} | ${escapeHtml(price)}</p><span class='btn'>Open Set Page</span></div></article></a>`;
   }).join("");
 
   container.querySelectorAll("img[data-box-image='true']").forEach((img) => {

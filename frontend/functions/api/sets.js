@@ -22,6 +22,9 @@ export async function onRequestGet(context) {
           s.release_year,
           s.theme,
           s.rrp_gbp,
+          s.image_thumb_url,
+          s.image_box_url,
+          s.image_hero_url,
           s.variant
         from core.sets s
         order by s.set_number asc, s.variant asc
@@ -37,6 +40,9 @@ export async function onRequestGet(context) {
           s.release_year,
           s.theme,
           s.rrp_gbp,
+          s.image_thumb_url,
+          s.image_box_url,
+          s.image_hero_url,
           s.variant,
           case
             when s.set_number = ${q} then 0

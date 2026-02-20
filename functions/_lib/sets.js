@@ -29,6 +29,9 @@ export function normalizeSet(raw) {
     release_year: toInt(first(raw, ["release_year"])),
     theme: first(raw, ["theme", "theme_group"]),
     rrp_gbp: toNum(first(raw, ["rrp_gbp"])),
+    image_thumb_url: first(raw, ["image_thumb_url"]),
+    image_box_url: first(raw, ["image_box_url"]),
+    image_hero_url: first(raw, ["image_hero_url"]),
     variant: toInt(first(raw, ["variant"])),
   };
 }

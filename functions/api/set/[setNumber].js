@@ -17,6 +17,9 @@ export async function onRequestGet(context) {
         s.release_year,
         s.theme,
         s.rrp_gbp,
+        s.image_thumb_url,
+        s.image_box_url,
+        s.image_hero_url,
         s.variant
       from core.sets s
       where s.set_number = ${setNumber}

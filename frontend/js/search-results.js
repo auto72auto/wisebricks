@@ -34,7 +34,7 @@ function renderResults(results) {
     const imageBlock = safeSetNo
       ? `<div class='set-card-media'><img class='set-card-image' data-box-image='true' loading='lazy' src='/set-images/${encodeURIComponent(safeSetNo)}/box.jpg' alt='Set ${setNo} in-box image' /></div>`
       : "";
-    return `<article class='card'>${imageBlock}<h3>${setNo} - ${title}</h3><p class='muted'>Pieces: ${fmtInt(set.pieces)} | Release year: ${fmtYear(set.release_year)}</p><a class='btn' href='/set/${encodeURIComponent(rawSetNo || setNo)}'>Open Set Page</a></article>`;
+    return `<article class='card set-card'><div class='set-card-row'><div class='set-card-text'><h3>${setNo} - ${title}</h3><p class='muted'>Pieces: ${fmtInt(set.pieces)} | Release year: ${fmtYear(set.release_year)}</p></div>${imageBlock}</div><a class='btn' href='/set/${encodeURIComponent(rawSetNo || setNo)}'>Open Set Page</a></article>`;
   }).join("");
 
   container.querySelectorAll("img[data-box-image='true']").forEach((img) => {

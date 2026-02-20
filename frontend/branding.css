@@ -118,7 +118,7 @@ main { max-width: 1120px; margin: 0 auto; padding: 28px 24px 48px; }
 .set-card-image {
   display: block;
   width: 100%;
-  aspect-ratio: 4 / 3;
+  height: 180px;
   object-fit: contain;
   background: #fff;
 }
@@ -177,6 +177,7 @@ main { max-width: 1120px; margin: 0 auto; padding: 28px 24px 48px; }
   .nav-group.open .nav-submenu { display: flex; }
   .header-inner { align-items: flex-start; }
   .hero h1 { font-size: 1.6rem; }
+  .set-card-image { height: 150px; }
 }
 
 

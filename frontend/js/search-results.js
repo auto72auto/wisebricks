@@ -33,8 +33,8 @@ function renderResults(results) {
     const title = escapeHtml(set.title || "Untitled set");
     const theme = escapeHtml(set.theme || "Theme unavailable");
     const hasPrice = set.rrp_gbp !== null && set.rrp_gbp !== undefined && set.rrp_gbp !== "";
-    const price = hasPrice ? `RRP £${Number(set.rrp_gbp).toFixed(2)}` : "Price unavailable";
-    const rrpDisplay = hasPrice ? `£${Number(set.rrp_gbp).toFixed(2)}` : "Price unavailable";
+    const price = hasPrice ? `RRP GBP ${Number(set.rrp_gbp).toFixed(2)}` : "Price unavailable";
+    const rrpDisplay = hasPrice ? `GBP ${Number(set.rrp_gbp).toFixed(2)}` : "Price unavailable";
     const imageBlock = safeSetNo
       ? `<div class='set-card-media'><img class='set-card-image' data-box-image='true' data-set-no='${escapeHtml(safeSetNo)}' loading='lazy' src='/set-images/${encodeURIComponent(safeSetNo)}/thumb.jpg' alt='Set ${setNo} in-box image' /></div>`
       : "";

@@ -9,6 +9,14 @@ function escapeHtml(value) {
     .replaceAll("'", "&#39;");
 }
 
+function normalizeImageSetNumber(setNumber) {
+  const raw = String(setNumber || "").trim();
+  if (!raw) return "";
+  const cleaned = raw.replace(/[^0-9A-Za-z_-]/g, "");
+  const variantMatch = cleaned.match(/^([0-9]{3,8})-[0-9]+$/);
+  return variantMatch ? variantMatch[1] : cleaned;
+}
+
 function renderResults(results) {
   const container = document.getElementById("results");
   if (!container) return;
@@ -20,11 +28,11 @@ function renderResults(results) {
 
   container.innerHTML = results.map((set) => {
     const rawSetNo = String(set.set_number || "").trim();
-    const safeSetNo = rawSetNo.replace(/[^0-9A-Za-z_-]/g, "");
+    const safeSetNo = normalizeImageSetNumber(rawSetNo);
     const setNo = escapeHtml(rawSetNo || "Unknown");
     const title = escapeHtml(set.title || "Untitled set");
     const imageBlock = safeSetNo
-      ? `<div class='set-card-media'><img class='set-card-image' data-box-image='true' loading='lazy' src='./set-images/${encodeURIComponent(safeSetNo)}/box.jpg' alt='Set ${setNo} in-box image' /></div>`
+      ? `<div class='set-card-media'><img class='set-card-image' data-box-image='true' loading='lazy' src='/set-images/${encodeURIComponent(safeSetNo)}/box.jpg' alt='Set ${setNo} in-box image' /></div>`
       : "";
     return `<article class='card'>${imageBlock}<h3>${setNo} - ${title}</h3><p class='muted'>Pieces: ${fmtInt(set.pieces)} | Release year: ${fmtYear(set.release_year)}</p><a class='btn' href='/set/${encodeURIComponent(rawSetNo || setNo)}'>Open Set Page</a></article>`;
   }).join("");

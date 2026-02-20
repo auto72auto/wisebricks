@@ -48,9 +48,19 @@
         <input id='search-input' placeholder='e.g. 10316 or Rivendell' />
         <button class='btn' type='submit'>Search</button>
       </form>
-      <p class='muted' id='search-status'>Ready</p>
     </section>
-    <section class='grid' id='results'></section>
+    <section class='search-layout'>
+      <aside class='card search-filters'>
+        <h3>Filter by Theme</h3>
+        <p class='muted' id='theme-filter-status'>Loading themes...</p>
+        <button class='btn filter-clear-btn' id='clear-theme-filters' type='button'>Clear Filters</button>
+        <div class='theme-filters' id='theme-filters'></div>
+      </aside>
+      <section class='search-results-panel'>
+        <p class='muted search-status-row' id='search-status'>Ready</p>
+        <section class='grid' id='results'></section>
+      </section>
+    </section>
   </main>
   <footer class='footer'>Results are loaded from Neon Postgres</footer>
   <script type='module' src='./js/search-results.js'></script>

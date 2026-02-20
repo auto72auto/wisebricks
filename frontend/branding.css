@@ -191,6 +191,59 @@ main { max-width: 1120px; margin: 0 auto; padding: 28px 24px 48px; }
   padding: 11px 12px;
   font: inherit;
 }
+.search-layout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 16px;
+  margin-top: 16px;
+  align-items: start;
+}
+.search-filters {
+  position: sticky;
+  top: 16px;
+}
+.search-filters h3 {
+  margin: 0;
+}
+.filter-clear-btn {
+  width: 100%;
+  margin-top: 12px;
+}
+.filter-clear-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.theme-filters {
+  margin-top: 12px;
+  display: grid;
+  gap: 8px;
+  max-height: 480px;
+  overflow: auto;
+  padding-right: 4px;
+}
+.theme-filter-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: #fff;
+  font-size: 0.92rem;
+}
+.theme-filter-option input {
+  margin: 0;
+}
+.theme-filter-name {
+  font-weight: 600;
+}
+.theme-filter-count {
+  color: var(--text-secondary);
+  margin-left: auto;
+}
+.search-status-row {
+  margin: 0;
+}
 .footer {
   border-top: 1px solid var(--border);
   background: var(--surface);
@@ -223,6 +276,8 @@ main { max-width: 1120px; margin: 0 auto; padding: 28px 24px 48px; }
   .nav-group.open .nav-submenu { display: flex; }
   .header-inner { align-items: flex-start; }
   .hero h1 { font-size: 1.6rem; }
+  .search-layout { grid-template-columns: 1fr; }
+  .search-filters { position: static; }
   .set-card-image { height: 170px; }
   .search-price-value { font-size: 1.5rem; }
   .search-title { font-size: 1.25rem; }

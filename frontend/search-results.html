@@ -8,7 +8,7 @@
   <link rel='preconnect' href='https://fonts.googleapis.com' />
   <link rel='preconnect' href='https://fonts.gstatic.com' crossorigin />
   <link href='https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap' rel='stylesheet' />
-  <link rel='stylesheet' href='./branding.css?v=20260220d' />
+  <link rel='stylesheet' href='./branding.css?v=20260220e' />
   <link rel='stylesheet' href='./v3a-examples.css' />
 </head>
 <body>
@@ -55,8 +55,30 @@
         <p class='muted' id='theme-filter-status'>Loading themes...</p>
         <button class='btn filter-clear-btn' id='clear-theme-filters' type='button'>Clear Filters</button>
         <div class='theme-filters' id='theme-filters'></div>
+        <hr class='filter-divider' />
+        <h3>Filter by Price</h3>
+        <p class='muted' id='price-filter-status'>Choose one or more price buckets.</p>
+        <button class='btn filter-clear-btn' id='clear-price-filters' type='button'>Clear Price Filters</button>
+        <div class='price-filters' id='price-filters'></div>
       </aside>
       <section class='search-results-panel'>
+        <div class='sort-controls'>
+          <label class='sort-field'>
+            <span>Sort by</span>
+            <select id='sort-by'>
+              <option value='set_number'>Set Number</option>
+              <option value='title'>Title</option>
+              <option value='price'>Price</option>
+            </select>
+          </label>
+          <label class='sort-field'>
+            <span>Direction</span>
+            <select id='sort-dir'>
+              <option value='asc'>Ascending</option>
+              <option value='desc'>Descending</option>
+            </select>
+          </label>
+        </div>
         <p class='muted search-status-row' id='search-status'>Ready</p>
         <section class='grid' id='results'></section>
         <div id='results-sentinel' class='results-sentinel' aria-hidden='true'></div>
@@ -64,7 +86,7 @@
     </section>
   </main>
   <footer class='footer'>Results are loaded from Neon Postgres</footer>
-  <script type='module' src='./js/search-results.js?v=20260220d'></script>
+  <script type='module' src='./js/search-results.js?v=20260220e'></script>
   <script src='./js/nav-menu.js'></script>
 </body>
 </html>

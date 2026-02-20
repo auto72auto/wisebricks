@@ -205,6 +205,11 @@ main { max-width: 1120px; margin: 0 auto; padding: 28px 24px 48px; }
 .search-filters h3 {
   margin: 0;
 }
+.filter-divider {
+  border: 0;
+  border-top: 1px solid var(--border);
+  margin: 16px 0;
+}
 .filter-clear-btn {
   width: 100%;
   margin-top: 12px;
@@ -240,6 +245,34 @@ main { max-width: 1120px; margin: 0 auto; padding: 28px 24px 48px; }
 .theme-filter-count {
   color: var(--text-secondary);
   margin-left: auto;
+}
+.price-filters {
+  margin-top: 12px;
+  display: grid;
+  gap: 8px;
+}
+.sort-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.sort-field {
+  display: grid;
+  gap: 4px;
+  min-width: 180px;
+}
+.sort-field span {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+.sort-field select {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 9px 10px;
+  font: inherit;
+  background: #fff;
 }
 .search-status-row {
   margin: 0;
@@ -281,6 +314,8 @@ main { max-width: 1120px; margin: 0 auto; padding: 28px 24px 48px; }
   .hero h1 { font-size: 1.6rem; }
   .search-layout { grid-template-columns: 1fr; }
   .search-filters { position: static; }
+  .sort-controls { flex-direction: column; }
+  .sort-field { min-width: 0; }
   .set-card-image { height: 170px; }
   .search-price-value { font-size: 1.5rem; }
   .search-title { font-size: 1.25rem; }

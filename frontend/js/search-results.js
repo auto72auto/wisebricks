@@ -1,9 +1,21 @@
 import { apiGet, fmtInt, fmtYear } from "./api-client.js";
 
 const PAGE_SIZE = 36;
+const PRICE_BUCKETS = [
+  { key: "under_25", label: "Under GBP 25" },
+  { key: "from_25_to_50", label: "GBP 25 to 49.99" },
+  { key: "from_50_to_100", label: "GBP 50 to 99.99" },
+  { key: "from_100_to_200", label: "GBP 100 to 199.99" },
+  { key: "over_200", label: "GBP 200 and above" },
+  { key: "no_price", label: "No known price" },
+];
+
 let allResults = [];
 let selectedThemes = new Set();
+let selectedPriceBuckets = new Set();
 let activeQuery = "";
+let sortBy = "set_number";
+let sortDir = "asc";
 let totalCount = 0;
 let isLoading = false;
 let hasMore = true;
@@ -71,19 +83,15 @@ function updateSearchStatus() {
   const status = document.getElementById("search-status");
   if (!status) return;
 
-  const activeFilterCount = selectedThemes.size;
+  const totalFilterCount = selectedThemes.size + selectedPriceBuckets.size;
   if (!allResults.length && !isLoading) {
     status.textContent = "No set found for the current search/filter.";
     return;
   }
 
-  const filterText = activeFilterCount ? ` | ${activeFilterCount} theme filter${activeFilterCount === 1 ? "" : "s"} active` : "";
+  const filterText = totalFilterCount ? ` | ${totalFilterCount} filter${totalFilterCount === 1 ? "" : "s"} active` : "";
   const loadingText = isLoading && hasMore ? " | Loading more..." : "";
   status.textContent = `${allResults.length} of ${totalCount} result(s)${filterText}${loadingText}`;
-}
-
-function buildThemesParam() {
-  return [...selectedThemes].join(",");
 }
 
 function buildSearchApiPath(offset) {
@@ -91,7 +99,10 @@ function buildSearchApiPath(offset) {
   params.set("q", activeQuery);
   params.set("limit", String(PAGE_SIZE));
   params.set("offset", String(offset));
-  if (selectedThemes.size) params.set("themes", buildThemesParam());
+  params.set("sort_by", sortBy);
+  params.set("sort_dir", sortDir);
+  if (selectedThemes.size) params.set("themes", [...selectedThemes].join(","));
+  if (selectedPriceBuckets.size) params.set("price_buckets", [...selectedPriceBuckets].join(","));
   return `/api/sets?${params.toString()}`;
 }
 
@@ -140,15 +151,16 @@ function renderThemeFilters(themes) {
   const clearButton = document.getElementById("clear-theme-filters");
   if (!container || !status || !clearButton) return;
 
-  if (!themes.length) {
+  const sortedThemes = [...themes].sort((a, b) => String(a.theme || "").localeCompare(String(b.theme || ""), "en-GB"));
+  if (!sortedThemes.length) {
     container.innerHTML = "";
     status.textContent = "No themes available.";
     clearButton.disabled = true;
     return;
   }
 
-  status.textContent = `${themes.length} theme(s) available`;
-  container.innerHTML = themes.map((row) => {
+  status.textContent = `${sortedThemes.length} theme(s) available`;
+  container.innerHTML = sortedThemes.map((row) => {
     const theme = String(row.theme || "Unknown");
     return `<label class='theme-filter-option'><input type='checkbox' value='${escapeHtml(theme)}' /> <span class='theme-filter-name'>${escapeHtml(theme)}</span> <span class='theme-filter-count'>(${fmtInt(row.set_count)})</span></label>`;
   }).join("");
@@ -172,6 +184,55 @@ function renderThemeFilters(themes) {
     clearButton.disabled = true;
     await refreshSearch();
   };
+}
+
+function renderPriceFilters() {
+  const container = document.getElementById("price-filters");
+  const clearButton = document.getElementById("clear-price-filters");
+  if (!container || !clearButton) return;
+
+  container.innerHTML = PRICE_BUCKETS.map((bucket) => {
+    return `<label class='theme-filter-option'><input type='checkbox' value='${bucket.key}' /> <span class='theme-filter-name'>${escapeHtml(bucket.label)}</span></label>`;
+  }).join("");
+
+  container.querySelectorAll("input[type='checkbox']").forEach((checkbox) => {
+    checkbox.addEventListener("change", async () => {
+      const bucket = checkbox.value;
+      if (checkbox.checked) selectedPriceBuckets.add(bucket);
+      else selectedPriceBuckets.delete(bucket);
+      clearButton.disabled = selectedPriceBuckets.size === 0;
+      await refreshSearch();
+    });
+  });
+
+  clearButton.disabled = true;
+  clearButton.onclick = async () => {
+    selectedPriceBuckets = new Set();
+    container.querySelectorAll("input[type='checkbox']").forEach((checkbox) => {
+      checkbox.checked = false;
+    });
+    clearButton.disabled = true;
+    await refreshSearch();
+  };
+}
+
+function initSortControls() {
+  const sortBySelect = document.getElementById("sort-by");
+  const sortDirSelect = document.getElementById("sort-dir");
+  if (!sortBySelect || !sortDirSelect) return;
+
+  sortBySelect.value = sortBy;
+  sortDirSelect.value = sortDir;
+
+  sortBySelect.addEventListener("change", async () => {
+    sortBy = sortBySelect.value;
+    await refreshSearch();
+  });
+
+  sortDirSelect.addEventListener("change", async () => {
+    sortDir = sortDirSelect.value;
+    await refreshSearch();
+  });
 }
 
 async function loadThemeOptions() {
@@ -219,6 +280,8 @@ function init() {
     });
   }
 
+  initSortControls();
+  renderPriceFilters();
   setupInfiniteScroll();
   loadThemeOptions();
   refreshSearch();

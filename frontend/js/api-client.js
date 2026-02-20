@@ -23,5 +23,5 @@ export function fmtGbp(value) {
   if (value === null || value === undefined || value === "") return "Unavailable";
   const n = Number(value);
   if (!Number.isFinite(n)) return "Unavailable";
-  return `GBP ${n.toFixed(2)}`;
+  return `£${n.toFixed(2)}`;
 }

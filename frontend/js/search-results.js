@@ -2,11 +2,11 @@ import { apiGet, fmtInt, fmtYear } from "./api-client.js";
 
 const PAGE_SIZE = 36;
 const PRICE_BUCKETS = [
-  { key: "under_25", label: "Under GBP 25" },
-  { key: "from_25_to_50", label: "GBP 25 to 49.99" },
-  { key: "from_50_to_100", label: "GBP 50 to 99.99" },
-  { key: "from_100_to_200", label: "GBP 100 to 199.99" },
-  { key: "over_200", label: "GBP 200 and above" },
+  { key: "under_25", label: "Under £25" },
+  { key: "from_25_to_50", label: "£25 to £49.99" },
+  { key: "from_50_to_100", label: "£50 to £99.99" },
+  { key: "from_100_to_200", label: "£100 to £199.99" },
+  { key: "over_200", label: "£200 and above" },
   { key: "no_price", label: "No known price" },
 ];
 
@@ -49,8 +49,8 @@ function appendResults(results) {
     const title = escapeHtml(set.title || "Untitled set");
     const theme = escapeHtml(set.theme || "Theme unavailable");
     const hasPrice = set.rrp_gbp !== null && set.rrp_gbp !== undefined && set.rrp_gbp !== "";
-    const price = hasPrice ? `RRP GBP ${Number(set.rrp_gbp).toFixed(2)}` : "Price unavailable";
-    const rrpDisplay = hasPrice ? `GBP ${Number(set.rrp_gbp).toFixed(2)}` : "Price unavailable";
+    const price = hasPrice ? `RRP £${Number(set.rrp_gbp).toFixed(2)}` : "Price unavailable";
+    const rrpDisplay = hasPrice ? `£${Number(set.rrp_gbp).toFixed(2)}` : "Price unavailable";
     const imageBlock = safeSetNo
       ? `<div class='set-card-media'><img class='set-card-image' data-box-image='true' data-set-no='${escapeHtml(safeSetNo)}' loading='lazy' src='/set-images/${encodeURIComponent(safeSetNo)}/thumb.jpg' alt='Set ${setNo} in-box image' /></div>`
       : "";

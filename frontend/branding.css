@@ -108,6 +108,20 @@ main { max-width: 1120px; margin: 0 auto; padding: 28px 24px 48px; }
   box-shadow: var(--shadow-card);
 }
 .card:hover { box-shadow: var(--shadow-hover); }
+.set-card-media {
+  margin: -16px -16px 12px;
+  border-bottom: 1px solid var(--border);
+  background: #fff;
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+  overflow: hidden;
+}
+.set-card-image {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: contain;
+  background: #fff;
+}
 .kpi { font-size: 1.6rem; font-weight: 800; background: var(--gradient); -webkit-background-clip:text; background-clip:text; color: transparent; }
 .muted { color: var(--text-secondary); }
 .btn {

@@ -201,6 +201,9 @@ main { max-width: 1120px; margin: 0 auto; padding: 28px 24px 48px; }
 .search-filters {
   position: sticky;
   top: 16px;
+  max-height: calc(100vh - 32px);
+  overflow: auto;
+  padding-right: 8px;
 }
 .search-filters h3 {
   margin: 0;

@@ -162,8 +162,13 @@ export async function onRequestGet(context) {
         left join lateral (
           select
             max(o.observed_at) as latest_observed_at,
-            round(avg(o.price_gbp)::numeric, 2) filter (
-              where o.observed_at >= now() - interval '7 day'
+            round(
+              (
+                avg(o.price_gbp) filter (
+                  where o.observed_at >= now() - interval '7 day'
+                )
+              )::numeric,
+              2
             ) as last_7d_avg_price_gbp
           from core.set_retailer_observation o
           where o.set_number = s.set_number

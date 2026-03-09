@@ -21,6 +21,11 @@ function fmtPriceOrCheck(value) {
 
 function fmtStock(value) {
   const map = {
+    available: "Available",
+    "low stock": "Low stock",
+    sold_out: "Sold out",
+    "sold out": "Sold out",
+    retired: "Retired",
     in_stock: "In stock",
     out_of_stock: "Out of stock",
     preorder: "Preorder",

@@ -21,8 +21,8 @@ async function init() {
     const rows = payload.rows || [];
 
     if (modeEl) {
-      modeEl.textContent = payload.mode === "observed_price_drops"
-        ? "Observed retailer drops"
+      modeEl.textContent = payload.mode === "snapshot_discount_vs_rrp"
+        ? "Current discount vs RRP"
         : "Fallback mode (sets + RRP)";
     }
 
@@ -33,7 +33,7 @@ async function init() {
         const nowPrice = fmtGbp(row.now_price ?? row.rrp_gbp);
         const prevPrice = row.prev_price == null ? "Unavailable" : fmtGbp(row.prev_price);
         const change = row.change_pct == null ? "Unavailable" : `${row.change_pct}%`;
-        return `<tr><td><a href='/set/${encodeURIComponent(setNo)}'>${setNo} - ${title}</a></td><td>${nowPrice}</td><td>${prevPrice}</td><td>${change}</td></tr>`;
+        return `<tr><td><a href='/set-page?set=${encodeURIComponent(setNo)}'>${setNo} - ${title}</a></td><td>${nowPrice}</td><td>${prevPrice}</td><td>${change}</td></tr>`;
       }).join("");
     }
 

@@ -1,5 +1,6 @@
 import { getSql, json } from "../_lib/db.js";
 import { normalizeSet, parsePositiveInt } from "../_lib/sets.js";
+import { buildRetailerRows, getRetailPriceRange } from "../_lib/retail.js";
 
 function parseBoundedPositiveInt(value, fallback, max) {
   const parsed = parsePositiveInt(value, fallback);
@@ -43,18 +44,29 @@ export async function onRequestGet(context) {
     const setRows = await sql`
       select
         s.set_number,
-        s.name as title,
-        s.pieces,
-        s.release_year,
-        s.theme,
+        s.title,
+        s.piece_count,
+        s.release_date,
+        s.theme_name,
         s.rrp_gbp,
         s.image_thumb_url,
         s.image_box_url,
         s.image_hero_url,
         s.variant
-      from core.sets s
+      from sets s
+      left join retail_snapshot r
+        on r.set_number = s.set_number
+       and r.variant = s.variant
       where s.set_number = ${requestedSetNumber}
-      order by s.variant asc
+      order by
+        coalesce(r.retailer_count_active, 0) desc,
+        case
+          when s.variant = 1 then 0
+          when s.variant = 0 then 1
+          when s.variant = -1 then 2
+          else 3
+        end asc,
+        s.variant asc
       limit 1
     `;
 
@@ -63,7 +75,7 @@ export async function onRequestGet(context) {
     }
 
     const set = normalizeSet(setRows[0]);
-    const setVariant = set.variant ?? 0;
+    const setVariant = set.variant ?? 1;
     const targetRrp = toNum(set.rrp_gbp);
     const targetPieces = Number.isFinite(set.pieces) ? set.pieces : null;
     const targetYear = Number.isFinite(set.release_year) ? set.release_year : null;
@@ -71,60 +83,16 @@ export async function onRequestGet(context) {
     const minComparableRrp = targetRrp === null ? null : targetRrp * 0.6;
     const maxComparableRrp = targetRrp === null ? null : targetRrp * 1.4;
 
-    const currentRetailers = await sql`
+    const retailRows = await sql`
       select
-        c.retailer_key,
-        coalesce(r.display_name, c.retailer_key) as retailer,
-        c.product_url,
-        c.price_gbp,
-        c.stock_state,
-        case
-          when c.price_gbp is null or s.rrp_gbp is null or s.rrp_gbp = 0 then null
-          else round(((c.price_gbp - s.rrp_gbp) / s.rrp_gbp) * 100.0, 1)
-        end as pct_vs_rrp
-      from core.set_retailer_current c
-      join core.sets s
-        on s.set_number = c.set_number
-       and s.variant = c.variant
-      left join core.retailers r
-        on r.retailer_key = c.retailer_key
-      where c.set_number = ${set.set_number}
-        and c.variant = ${setVariant}
-      order by retailer asc
+        *
+      from retail_snapshot
+      where set_number = ${set.set_number}
+        and variant = ${setVariant}
+      limit 1
     `;
-
-    let weeklyHistory = [];
-    let historyMode = "ok";
-    try {
-      weeklyHistory = await sql`
-        with weekly as (
-          select
-            date_trunc('week', o.observed_at)::date as week_start,
-            avg(o.price_gbp) as avg_price_gbp,
-            min(o.price_gbp) as min_price_gbp,
-            max(o.price_gbp) as max_price_gbp,
-            count(*)::int as observation_count
-          from core.set_retailer_observation o
-          where o.set_number = ${set.set_number}
-            and o.variant = ${setVariant}
-            and o.price_gbp is not null
-          group by date_trunc('week', o.observed_at)::date
-          order by week_start desc
-          limit ${historyWeeks}
-        )
-        select
-          week_start,
-          round(avg_price_gbp::numeric, 2) as avg_price_gbp,
-          round(min_price_gbp::numeric, 2) as min_price_gbp,
-          round(max_price_gbp::numeric, 2) as max_price_gbp,
-          observation_count
-        from weekly
-        order by week_start asc
-      `;
-    } catch {
-      historyMode = "unavailable";
-      weeklyHistory = [];
-    }
+    const retailSnapshot = retailRows[0] || null;
+    const currentRetailers = buildRetailerRows(retailSnapshot, targetRrp);
 
     let comparables = [];
     let comparablesMode = "ok";
@@ -132,51 +100,25 @@ export async function onRequestGet(context) {
       comparables = await sql`
         select
           s.set_number,
-          s.name as title,
-          s.theme,
-          s.release_year,
-          s.pieces,
+          s.title,
+          s.theme_name as theme,
+          extract(year from s.release_date)::int as release_year,
+          s.piece_count as pieces,
           s.rrp_gbp,
-          cheapest.price_gbp as best_current_price_gbp,
-          cheapest.retailer as best_price_retailer,
+          r.lowest_retail_price as best_current_price_gbp,
+          r.lowest_retail_source as best_price_retailer,
           case
-            when cheapest.price_gbp is null or s.rrp_gbp is null or s.rrp_gbp = 0 then null
-            else round(((cheapest.price_gbp - s.rrp_gbp) / s.rrp_gbp) * 100.0, 1)
+            when r.lowest_retail_price is null or s.rrp_gbp is null or s.rrp_gbp = 0 then null
+            else round(((r.lowest_retail_price - s.rrp_gbp) / s.rrp_gbp) * 100.0, 1)
           end as best_price_pct_vs_rrp,
-          obs.latest_observed_at,
-          obs.last_7d_avg_price_gbp
-        from core.sets s
-        left join lateral (
-          select
-            c.price_gbp,
-            coalesce(r.display_name, c.retailer_key) as retailer
-          from core.set_retailer_current c
-          left join core.retailers r
-            on r.retailer_key = c.retailer_key
-          where c.set_number = s.set_number
-            and c.variant = s.variant
-            and c.price_gbp is not null
-          order by c.price_gbp asc
-          limit 1
-        ) cheapest on true
-        left join lateral (
-          select
-            max(o.observed_at) as latest_observed_at,
-            round(
-              (
-                avg(o.price_gbp) filter (
-                  where o.observed_at >= now() - interval '7 day'
-                )
-              )::numeric,
-              2
-            ) as last_7d_avg_price_gbp
-          from core.set_retailer_observation o
-          where o.set_number = s.set_number
-            and o.variant = s.variant
-            and o.price_gbp is not null
-        ) obs on true
+          r.last_updated as latest_observed_at,
+          null::numeric as last_7d_avg_price_gbp
+        from sets s
+        left join retail_snapshot r
+          on r.set_number = s.set_number
+         and r.variant = s.variant
         where s.set_number <> ${set.set_number}
-          and (${targetTheme === null} or s.theme = ${targetTheme})
+          and (${targetTheme === null} or s.theme_name = ${targetTheme})
           and (
             ${targetRrp === null}
             or (
@@ -194,14 +136,14 @@ export async function onRequestGet(context) {
             +
             case
               when ${targetPieces === null || targetPieces === 0} then 0
-              when s.pieces is null then 1
-              else abs(s.pieces - ${targetPieces})::numeric / ${targetPieces}
+              when s.piece_count is null then 1
+              else abs(s.piece_count - ${targetPieces})::numeric / ${targetPieces}
             end
             +
             case
               when ${targetYear === null} then 0
-              when s.release_year is null then 1
-              else abs(s.release_year - ${targetYear})::numeric / 10
+              when s.release_date is null then 1
+              else abs(extract(year from s.release_date)::int - ${targetYear})::numeric / 10
             end
           ) asc,
           s.set_number asc
@@ -212,19 +154,13 @@ export async function onRequestGet(context) {
       comparables = [];
     }
 
+    const priceRange = getRetailPriceRange(currentRetailers);
     const snapshot = {
       retailer_count: currentRetailers.length,
-      lowest_current_price_gbp: currentRetailers
-        .map((row) => toNum(row.price_gbp))
-        .filter((v) => v !== null)
-        .sort((a, b) => a - b)[0] ?? null,
-      highest_current_price_gbp: currentRetailers
-        .map((row) => toNum(row.price_gbp))
-        .filter((v) => v !== null)
-        .sort((a, b) => b - a)[0] ?? null,
-      latest_observation_at: toIsoOrNull(
-        weeklyHistory.length ? weeklyHistory[weeklyHistory.length - 1].week_start : null
-      ),
+      lowest_current_price_gbp:
+        retailSnapshot?.lowest_retail_price ?? priceRange.lowest_current_price_gbp,
+      highest_current_price_gbp: priceRange.highest_current_price_gbp,
+      latest_observation_at: toIsoOrNull(retailSnapshot?.last_updated),
     };
 
     return json({
@@ -240,9 +176,9 @@ export async function onRequestGet(context) {
       snapshot,
       retailers: currentRetailers,
       history: {
-        mode: historyMode,
+        mode: "unavailable",
         weeks_requested: historyWeeks,
-        points: weeklyHistory,
+        points: [],
       },
       comparables: {
         mode: comparablesMode,

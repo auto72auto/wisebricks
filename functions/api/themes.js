@@ -9,13 +9,13 @@ export async function onRequestGet(context) {
 
     const rows = await sql`
       select
-        coalesce(nullif(trim(theme), ''), 'Unknown') as theme,
+        coalesce(nullif(trim(theme_name), ''), 'Unknown') as theme,
         count(*)::int as set_count,
-        min(release_year) as first_year,
-        max(release_year) as latest_year,
-        round(avg(pieces)::numeric, 1) as avg_pieces
-      from core.sets
-      group by coalesce(nullif(trim(theme), ''), 'Unknown')
+        min(extract(year from release_date)::int) as first_year,
+        max(extract(year from release_date)::int) as latest_year,
+        round(avg(piece_count)::numeric, 1) as avg_pieces
+      from sets
+      group by coalesce(nullif(trim(theme_name), ''), 'Unknown')
       order by set_count desc, theme asc
       limit ${limit}
     `;

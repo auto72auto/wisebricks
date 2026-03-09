@@ -51,25 +51,25 @@ export async function onRequestGet(context) {
     const rows = await sql`
       select
         s.set_number,
-        s.name as title,
-        s.pieces,
-        s.release_year,
-        s.theme,
+        s.title,
+        s.piece_count,
+        s.release_date,
+        s.theme_name,
         s.rrp_gbp,
         s.image_thumb_url,
         s.image_box_url,
         s.image_hero_url,
         s.variant
-      from core.sets s
+      from sets s
       where (
         ${q === ""}
         or s.set_number ilike ${like}
-        or s.name ilike ${like}
-        or coalesce(s.theme, '') ilike ${like}
+        or s.title ilike ${like}
+        or coalesce(s.theme_name, '') ilike ${like}
       )
         and (
           ${hasThemes === false}
-          or coalesce(nullif(trim(s.theme), ''), 'Unknown') = any(${themes})
+          or coalesce(nullif(trim(s.theme_name), ''), 'Unknown') = any(${themes})
         )
         and (
           ${hasPriceBuckets === false}
@@ -87,8 +87,8 @@ export async function onRequestGet(context) {
         case when ${sortBy} = 'price' and ${sortDir} = 'desc' then s.rrp_gbp end desc nulls last,
         case when ${sortBy} = 'set_number' and ${sortDir} = 'asc' then s.set_number end asc,
         case when ${sortBy} = 'set_number' and ${sortDir} = 'desc' then s.set_number end desc,
-        case when ${sortBy} = 'title' and ${sortDir} = 'asc' then s.name end asc,
-        case when ${sortBy} = 'title' and ${sortDir} = 'desc' then s.name end desc,
+        case when ${sortBy} = 'title' and ${sortDir} = 'asc' then s.title end asc,
+        case when ${sortBy} = 'title' and ${sortDir} = 'desc' then s.title end desc,
         s.set_number asc,
         s.variant asc
       limit ${limit}
@@ -97,16 +97,16 @@ export async function onRequestGet(context) {
 
     const totalRows = await sql`
       select count(*)::int as total_count
-      from core.sets s
+      from sets s
       where (
         ${q === ""}
         or s.set_number ilike ${like}
-        or s.name ilike ${like}
-        or coalesce(s.theme, '') ilike ${like}
+        or s.title ilike ${like}
+        or coalesce(s.theme_name, '') ilike ${like}
       )
         and (
           ${hasThemes === false}
-          or coalesce(nullif(trim(s.theme), ''), 'Unknown') = any(${themes})
+          or coalesce(nullif(trim(s.theme_name), ''), 'Unknown') = any(${themes})
         )
         and (
           ${hasPriceBuckets === false}

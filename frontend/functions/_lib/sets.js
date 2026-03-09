@@ -22,12 +22,19 @@ function toNum(value) {
 }
 
 export function normalizeSet(raw) {
+  const releaseDate = first(raw, ["release_date"]);
+  const releaseYear =
+    toInt(first(raw, ["release_year"])) ??
+    (releaseDate ? new Date(releaseDate).getUTCFullYear() : null);
+
   return {
     set_number: first(raw, ["set_number"]),
     title: first(raw, ["title", "name"]) || "Untitled set",
-    pieces: toInt(first(raw, ["pieces"])),
-    release_year: toInt(first(raw, ["release_year"])),
-    theme: first(raw, ["theme", "theme_group"]),
+    pieces: toInt(first(raw, ["piece_count", "pieces"])),
+    release_year: Number.isFinite(releaseYear) ? releaseYear : null,
+    release_date: releaseDate || null,
+    theme: first(raw, ["theme_name", "theme", "theme_group"]),
+    subtheme: first(raw, ["subtheme_name", "subtheme"]),
     rrp_gbp: toNum(first(raw, ["rrp_gbp"])),
     image_thumb_url: first(raw, ["image_thumb_url"]),
     image_box_url: first(raw, ["image_box_url"]),

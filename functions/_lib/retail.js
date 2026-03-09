@@ -1,9 +1,24 @@
 const RETAILER_CONFIG = [
+  { retailer_key: "lego_uk", retailer: "LEGO UK", price_col: "lego_uk_price", status_col: "lego_uk_status", url_col: "lego_uk_url" },
   { retailer_key: "amazon_uk", retailer: "Amazon UK", price_col: "amazon_uk_price", status_col: "amazon_uk_status", url_col: "amazon_uk_url" },
+  { retailer_key: "smyths", retailer: "Smyths", price_col: "smyths_price", status_col: "smyths_status", url_col: "smyths_url" },
   { retailer_key: "argos", retailer: "Argos", price_col: "argos_price", status_col: "argos_status", url_col: "argos_url" },
   { retailer_key: "john_lewis", retailer: "John Lewis", price_col: "john_lewis_price", status_col: "john_lewis_status", url_col: "john_lewis_url" },
-  { retailer_key: "lego_uk", retailer: "LEGO UK", price_col: "lego_uk_price", status_col: "lego_uk_status", url_col: "lego_uk_url" },
-  { retailer_key: "smyths", retailer: "Smyths", price_col: "smyths_price", status_col: "smyths_status", url_col: "smyths_url" },
+  { retailer_key: "brick_shack", retailer: "Brick Shack", price_col: "brick_shack_price", status_col: "brick_shack_status", url_col: "brick_shack_url" },
+  { retailer_key: "coolshop", retailer: "Coolshop", price_col: "coolshop_price", status_col: "coolshop_status", url_col: "coolshop_url" },
+  { retailer_key: "currys", retailer: "Currys", price_col: "currys_price", status_col: "currys_status", url_col: "currys_url" },
+  { retailer_key: "debenhams", retailer: "Debenhams", price_col: "debenhams_price", status_col: "debenhams_status", url_col: "debenhams_url" },
+  { retailer_key: "downtown", retailer: "Downtown", price_col: "downtown_price", status_col: "downtown_status", url_col: "downtown_url" },
+  { retailer_key: "hamleys", retailer: "Hamleys", price_col: "hamleys_price", status_col: "hamleys_status", url_col: "hamleys_url" },
+  { retailer_key: "hillians", retailer: "Hillians", price_col: "hillians_price", status_col: "hillians_status", url_col: "hillians_url" },
+  { retailer_key: "jadlam", retailer: "Jadlam", price_col: "jadlam_price", status_col: "jadlam_status", url_col: "jadlam_url" },
+  { retailer_key: "jarrold", retailer: "Jarrold", price_col: "jarrold_price", status_col: "jarrold_status", url_col: "jarrold_url" },
+  { retailer_key: "roys", retailer: "Roys", price_col: "roys_price", status_col: "roys_status", url_col: "roys_url" },
+  { retailer_key: "sainsburys", retailer: "Sainsbury's", price_col: "sainsburys_price", status_col: "sainsburys_status", url_col: "sainsburys_url" },
+  { retailer_key: "sam_turner", retailer: "Sam Turner", price_col: "sam_turner_price", status_col: "sam_turner_status", url_col: "sam_turner_url" },
+  { retailer_key: "tesco", retailer: "Tesco", price_col: "tesco_price", status_col: "tesco_status", url_col: "tesco_url" },
+  { retailer_key: "wonderland", retailer: "Wonderland", price_col: "wonderland_price", status_col: "wonderland_status", url_col: "wonderland_url" },
+  { retailer_key: "zavvi", retailer: "Zavvi", price_col: "zavvi_price", status_col: "zavvi_status", url_col: "zavvi_url" },
 ];
 
 function toNum(value) {

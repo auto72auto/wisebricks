@@ -11,11 +11,16 @@ function toNum(value) {
   return Number.isFinite(parsed) ? parsed : null;
 }
 
+function toPositivePrice(value) {
+  const parsed = toNum(value);
+  return parsed !== null && parsed > 0 ? parsed : null;
+}
+
 export function buildRetailerRows(snapshot, rrpGbp) {
   if (!snapshot) return [];
 
   return RETAILER_CONFIG.map((config) => {
-    const price_gbp = toNum(snapshot[config.price_col]);
+    const price_gbp = toPositivePrice(snapshot[config.price_col]);
     const status = String(snapshot[config.status_col] || "").trim() || "unknown";
     const product_url = String(snapshot[config.url_col] || "").trim();
     const pct_vs_rrp =
@@ -32,11 +37,11 @@ export function buildRetailerRows(snapshot, rrpGbp) {
       availability_status: status,
       pct_vs_rrp,
     };
-  }).filter((row) => row.product_url || row.price_gbp !== null || row.stock_state !== "unknown");
+  }).filter((row) => row.price_gbp !== null);
 }
 
 export function getRetailPriceRange(rows) {
-  const prices = rows.map((row) => toNum(row.price_gbp)).filter((value) => value !== null);
+  const prices = rows.map((row) => toPositivePrice(row.price_gbp)).filter((value) => value !== null);
   if (!prices.length) {
     return {
       lowest_current_price_gbp: null,

@@ -1,6 +1,6 @@
 import { getSql, json } from "../../_lib/db.js";
 import { normalizeSet } from "../../_lib/sets.js";
-import { buildRetailerRows } from "../../_lib/retail.js";
+import { buildMarketplaceRows, buildRetailerRows } from "../../_lib/retail.js";
 
 export async function onRequestGet(context) {
   try {
@@ -55,7 +55,19 @@ export async function onRequestGet(context) {
       limit 1
     `;
     const retailSnapshot = retailRows[0] || null;
-    const retailerRows = buildRetailerRows(retailSnapshot, set.rrp_gbp);
+    const secondaryRows = await sql`
+      select
+        bl_new_lowest_ask_gbp
+      from secondary_snapshot
+      where set_number = ${set.set_number}
+        and variant = ${set.variant ?? 1}
+      limit 1
+    `;
+    const secondarySnapshot = secondaryRows[0] || null;
+    const retailerRows = [
+      ...buildRetailerRows(retailSnapshot, set.rrp_gbp),
+      ...buildMarketplaceRows(set.set_number, retailSnapshot, secondarySnapshot, set.rrp_gbp),
+    ];
 
     return json({
       set,

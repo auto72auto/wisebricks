@@ -55,6 +55,40 @@ export function buildRetailerRows(snapshot, rrpGbp) {
   }).filter((row) => row.price_gbp !== null);
 }
 
+export function buildMarketplaceRows(setNumber, retailSnapshot, secondarySnapshot, rrpGbp) {
+  const safeSetNumber = String(setNumber || "").trim();
+  if (!safeSetNumber) return [];
+
+  const rows = [
+    {
+      retailer_key: "bricklink",
+      retailer: "BrickLink",
+      product_url: `https://www.bricklink.com/v2/catalog/catalogitem.page?S=${encodeURIComponent(safeSetNumber)}-1`,
+      price_gbp: toPositivePrice(secondarySnapshot?.bl_new_lowest_ask_gbp),
+      stock_state: "varies",
+      availability_status: "varies",
+    },
+    {
+      retailer_key: "ebay_uk",
+      retailer: "eBay UK",
+      product_url: `https://www.ebay.co.uk/sch/i.html?_nkw=LEGO+${encodeURIComponent(safeSetNumber)}&LH_BIN=1`,
+      price_gbp: toPositivePrice(retailSnapshot?.ebay_uk_new_buy_now_low),
+      stock_state: "varies",
+      availability_status: "varies",
+    },
+  ];
+
+  return rows
+    .map((row) => ({
+      ...row,
+      pct_vs_rrp:
+        row.price_gbp === null || rrpGbp === null || rrpGbp === 0
+          ? null
+          : Number((((row.price_gbp - rrpGbp) / rrpGbp) * 100).toFixed(1)),
+    }))
+    .filter((row) => row.price_gbp !== null);
+}
+
 export function getRetailPriceRange(rows) {
   const prices = rows.map((row) => toPositivePrice(row.price_gbp)).filter((value) => value !== null);
   if (!prices.length) {

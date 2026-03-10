@@ -45,19 +45,22 @@
     <h1>Wise Bricks market pulse for LEGO buyers</h1>
     <p>Track best current prices, discount depth, and stock shifts with set-first navigation.</p>
     <div class="meta-grid">
-      <article class="card"><strong>Tracked Sets</strong><br/>1,248</article>
-      <article class="card"><strong>Retailers Monitored</strong><br/>8 UK stores</article>
-      <article class="card"><strong>Daily Updates</strong><br/>06:30 and 18:30</article>
-      <article class="card"><strong>Largest 24h Drop</strong><br/>-14.2%</article>
+      <article class="card"><strong>Tracked Sets</strong><br/><span id="stat-tracked-sets">Loading...</span></article>
+      <article class="card"><strong>Retailers Monitored</strong><br/><span id="stat-retailers-monitored">Loading...</span></article>
+      <article class="card"><strong>Discounted Sets</strong><br/><span id="stat-discounted-sets">Loading...</span></article>
+      <article class="card"><strong>Biggest Discount</strong><br/><a id="stat-biggest-discount-link" href="./price-drops.html"><span id="stat-biggest-discount">Loading...</span></a></article>
     </div>
     <div class="pill-row"><span class="pill">Set-first discovery</span><span class="pill">Price + stock context</span><span class="pill">Methodology linked</span></div>
   </section>
-  <article class="card hero-media">Hero visual placeholder<br/>Top movers dashboard</article>
+  <article class="card hero-media">
+    <h3>Best Current Discounts</h3>
+    <div class="cards-grid" id="home-top-discounts"><p class="muted">Loading top discounts...</p></div>
+  </article>
 </section>
 <section class="kpi-strip">
-  <article class="kpi-item"><span class="label">Avg Discount Today</span><span class="value">12.4%</span></article>
-  <article class="kpi-item"><span class="label">In-stock Coverage</span><span class="value">92%</span></article>
-  <article class="kpi-item"><span class="label">New Drops (24h)</span><span class="value">37 sets</span></article>
+  <article class="kpi-item"><span class="label">Avg Discount Today</span><span class="value" id="stat-avg-discount">Loading...</span></article>
+  <article class="kpi-item"><span class="label">In-stock Coverage</span><span class="value" id="stat-in-stock-coverage">Loading...</span></article>
+  <article class="kpi-item"><span class="label">Retail Updates (24h)</span><span class="value" id="stat-retail-updates">Loading...</span></article>
 </section>
 <section class="layout-2col">
   <article class="card"><h3>Top Paths</h3><ul class="list"><li>Search by set number or title</li><li>Watchlist for price-drop alerts</li><li>Theme hubs for macro value scanning</li></ul><a class="btn" href="search-results.html">Search Sets</a></article>
@@ -65,6 +68,7 @@
 </section>
   </main>
   <footer class='footer'>Desktop branded example. Mobile pair in ../examples-mobile/</footer>
+  <script type='module' src='./js/home.js'></script>
   <script src='./js/nav-menu.js'></script>
   <!-- Deploy marker: 2026-02-16T14:15Z -->
 </body>

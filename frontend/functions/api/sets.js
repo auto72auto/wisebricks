@@ -17,8 +17,8 @@ function parseListParam(value) {
 }
 
 function parseSortBy(value) {
-  const allowed = new Set(["set_number", "title", "price"]);
-  return allowed.has(value) ? value : "set_number";
+  const allowed = new Set(["set_number", "title", "price", "discount"]);
+  return allowed.has(value) ? value : "discount";
 }
 
 function parseSortDir(value) {
@@ -59,8 +59,17 @@ export async function onRequestGet(context) {
         s.image_thumb_url,
         s.image_box_url,
         s.image_hero_url,
-        s.variant
+        s.variant,
+        rs.lowest_retail_price as best_current_price_gbp,
+        rs.lowest_retail_source as best_price_retailer,
+        case
+          when rs.lowest_retail_price is null or s.rrp_gbp is null or s.rrp_gbp = 0 then null
+          else round(((s.rrp_gbp - rs.lowest_retail_price) / s.rrp_gbp) * 100.0, 1)
+        end as pct_below_rrp
       from sets s
+      left join retail_snapshot rs
+        on rs.set_number = s.set_number
+       and rs.variant = s.variant
       where (
         ${q === ""}
         or s.set_number ilike ${like}
@@ -83,6 +92,18 @@ export async function onRequestGet(context) {
           )
         )
       order by
+        case when ${sortBy} = 'discount' and ${sortDir} = 'desc' then
+          case
+            when rs.lowest_retail_price is null or s.rrp_gbp is null or s.rrp_gbp = 0 then null
+            else ((s.rrp_gbp - rs.lowest_retail_price) / s.rrp_gbp) * 100.0
+          end
+        end desc nulls last,
+        case when ${sortBy} = 'discount' and ${sortDir} = 'asc' then
+          case
+            when rs.lowest_retail_price is null or s.rrp_gbp is null or s.rrp_gbp = 0 then null
+            else ((s.rrp_gbp - rs.lowest_retail_price) / s.rrp_gbp) * 100.0
+          end
+        end asc nulls last,
         case when ${sortBy} = 'price' and ${sortDir} = 'asc' then s.rrp_gbp end asc nulls last,
         case when ${sortBy} = 'price' and ${sortDir} = 'desc' then s.rrp_gbp end desc nulls last,
         case when ${sortBy} = 'set_number' and ${sortDir} = 'asc' then s.set_number end asc,
@@ -121,7 +142,12 @@ export async function onRequestGet(context) {
         )
     `;
 
-    const results = rows.map((r) => normalizeSet(r));
+    const results = rows.map((r) => ({
+      ...normalizeSet(r),
+      best_current_price_gbp: r.best_current_price_gbp == null ? null : Number(r.best_current_price_gbp),
+      best_price_retailer: r.best_price_retailer || null,
+      pct_below_rrp: r.pct_below_rrp == null ? null : Number(r.pct_below_rrp),
+    }));
     const totalCount = Number(totalRows?.[0]?.total_count || 0);
     return json({
       query: q,

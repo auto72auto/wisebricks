@@ -14,8 +14,8 @@ let allResults = [];
 let selectedThemes = new Set();
 let selectedPriceBuckets = new Set();
 let activeQuery = "";
-let sortBy = "set_number";
-let sortDir = "asc";
+let sortBy = "discount";
+let sortDir = "desc";
 let totalCount = 0;
 let isLoading = false;
 let hasMore = true;
@@ -48,13 +48,17 @@ function appendResults(results) {
     const setNo = escapeHtml(rawSetNo || "Unknown");
     const title = escapeHtml(set.title || "Untitled set");
     const theme = escapeHtml(set.theme || "Theme unavailable");
-    const hasPrice = set.rrp_gbp !== null && set.rrp_gbp !== undefined && set.rrp_gbp !== "";
-    const price = hasPrice ? `RRP £${Number(set.rrp_gbp).toFixed(2)}` : "Price unavailable";
-    const rrpDisplay = hasPrice ? `£${Number(set.rrp_gbp).toFixed(2)}` : "Price unavailable";
+    const hasRrp = set.rrp_gbp !== null && set.rrp_gbp !== undefined && set.rrp_gbp !== "";
+    const hasBestPrice = set.best_current_price_gbp !== null && set.best_current_price_gbp !== undefined && set.best_current_price_gbp !== "";
+    const rrpDisplay = hasRrp ? `£${Number(set.rrp_gbp).toFixed(2)}` : "Price unavailable";
+    const bestPriceDisplay = hasBestPrice ? `£${Number(set.best_current_price_gbp).toFixed(2)}` : rrpDisplay;
+    const discountDisplay = set.pct_below_rrp === null || set.pct_below_rrp === undefined || set.pct_below_rrp === ""
+      ? "No live discount"
+      : `${Number(set.pct_below_rrp).toFixed(1)}% below RRP`;
     const imageBlock = safeSetNo
       ? `<div class='set-card-media'><img class='set-card-image' data-box-image='true' data-set-no='${escapeHtml(safeSetNo)}' loading='lazy' src='/set-images/${encodeURIComponent(safeSetNo)}/thumb.jpg' alt='Set ${setNo} in-box image' /></div>`
       : "";
-    return `<a class='search-result-link' href='/set-page?set=${encodeURIComponent(rawSetNo || setNo)}' aria-label='Open set page for ${setNo} ${title}'><article class='card search-result-card'>${imageBlock}<div class='search-price-bar'><span class='search-price-badge'>BEST PRICE</span><span class='search-price-value'>${escapeHtml(rrpDisplay)}</span></div><div class='search-result-body'><p class='search-theme'>${theme.toUpperCase()}</p><h3 class='search-title'>${setNo} ${title}</h3><p class='muted search-meta'>Pieces: ${fmtInt(set.pieces)} | Release year: ${fmtYear(set.release_year)} | ${escapeHtml(price)}</p><span class='btn'>Open Set Page</span></div></article></a>`;
+    return `<a class='search-result-link' href='/set-page?set=${encodeURIComponent(rawSetNo || setNo)}' aria-label='Open set page for ${setNo} ${title}'><article class='card search-result-card'>${imageBlock}<div class='search-price-bar'><span class='search-price-badge'>BEST PRICE</span><span class='search-price-value'>${escapeHtml(bestPriceDisplay)}</span></div><div class='search-result-body'><p class='search-theme'>${theme.toUpperCase()}</p><h3 class='search-title'>${setNo} ${title}</h3><p class='muted search-meta'>Pieces: ${fmtInt(set.pieces)} | Release year: ${fmtYear(set.release_year)} | RRP ${escapeHtml(rrpDisplay)}</p><p class='muted search-meta'>${escapeHtml(discountDisplay)}</p><span class='btn'>Open Set Page</span></div></article></a>`;
   }).join("");
 
   container.insertAdjacentHTML("beforeend", html);

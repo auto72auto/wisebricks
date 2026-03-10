@@ -1,6 +1,6 @@
 import { getSql, json } from "../_lib/db.js";
 import { normalizeSet, parsePositiveInt } from "../_lib/sets.js";
-import { buildRetailerRows, getRetailPriceRange } from "../_lib/retail.js";
+import { buildMarketplaceRows, buildRetailerRows, getRetailPriceRange } from "../_lib/retail.js";
 
 function parseBoundedPositiveInt(value, fallback, max) {
   const parsed = parsePositiveInt(value, fallback);
@@ -92,7 +92,19 @@ export async function onRequestGet(context) {
       limit 1
     `;
     const retailSnapshot = retailRows[0] || null;
-    const currentRetailers = buildRetailerRows(retailSnapshot, targetRrp);
+    const secondaryRows = await sql`
+      select
+        bl_new_lowest_ask_gbp
+      from secondary_snapshot
+      where set_number = ${set.set_number}
+        and variant = ${setVariant}
+      limit 1
+    `;
+    const secondarySnapshot = secondaryRows[0] || null;
+    const currentRetailers = [
+      ...buildRetailerRows(retailSnapshot, targetRrp),
+      ...buildMarketplaceRows(set.set_number, retailSnapshot, secondarySnapshot, targetRrp),
+    ];
 
     let comparables = [];
     let comparablesMode = "ok";

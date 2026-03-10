@@ -48,7 +48,7 @@ export async function onRequestGet(context) {
   try {
     const sql = getSql(context);
 
-    const [summaryRows, moverRows, updatesRows] = await Promise.all([
+    const [summaryRows, moverRows] = await Promise.all([
       sql`
         with ranked as (
           select
@@ -58,6 +58,7 @@ export async function onRequestGet(context) {
             rs.lowest_retail_price,
             rs.discount_vs_rrp_pct,
             rs.retailer_count_active,
+            rs.last_updated,
             row_number() over (
               partition by s.set_number
               order by
@@ -91,7 +92,8 @@ export async function onRequestGet(context) {
           round(
             100.0 * count(*) filter (where coalesce(retailer_count_active, 0) > 0) / nullif(count(*), 0),
             1
-          ) as in_stock_coverage_pct
+          ) as in_stock_coverage_pct,
+          max(last_updated) as latest_snapshot_at
         from ranked
         where rn = 1
       `,
@@ -158,11 +160,6 @@ export async function onRequestGet(context) {
         order by discount_vs_rrp_pct desc nulls last, discount_vs_rrp_gbp desc nulls last, set_number asc
         limit 3
       `,
-      sql`
-        select count(distinct set_number)::int as updated_sets_24h
-        from retail_history
-        where scraped_at >= now() - interval '24 hours'
-      `,
     ]);
 
     const summary = summaryRows[0] || {};
@@ -175,7 +172,7 @@ export async function onRequestGet(context) {
         discounted_sets: Number(summary.discounted_sets || 0),
         avg_discount_pct: toPct(summary.avg_discount_pct),
         in_stock_coverage_pct: toPct(summary.in_stock_coverage_pct),
-        retail_updates_24h: Number(updatesRows?.[0]?.updated_sets_24h || 0),
+        latest_snapshot_at: toIsoOrNull(summary.latest_snapshot_at),
       },
       biggest_discount: biggestDiscount
         ? {

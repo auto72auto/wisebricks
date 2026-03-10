@@ -19,6 +19,18 @@ function fmtPct(value) {
   return Number.isFinite(n) ? `-${Math.abs(n).toFixed(1)}%` : "Unavailable";
 }
 
+function fmtSnapshot(value) {
+  if (!value) return "Unavailable";
+  const dt = new Date(value);
+  if (Number.isNaN(dt.getTime())) return "Unavailable";
+  return dt.toLocaleString("en-GB", {
+    day: "2-digit",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
 function normalizeImageUrl(set) {
   const candidates = [set?.image_thumb_url, set?.image_box_url, set?.image_hero_url]
     .map((value) => String(value || "").trim())
@@ -72,7 +84,7 @@ async function init() {
     setText("stat-biggest-discount", biggestDiscount ? fmtPct(biggestDiscount.discount_pct) : "Unavailable");
     setText("stat-avg-discount", Number.isFinite(Number(stats.avg_discount_pct)) ? `${Number(stats.avg_discount_pct).toFixed(1)}%` : "Unavailable");
     setText("stat-in-stock-coverage", Number.isFinite(Number(stats.in_stock_coverage_pct)) ? `${Number(stats.in_stock_coverage_pct).toFixed(1)}%` : "Unavailable");
-    setText("stat-retail-updates", fmtInt(stats.retail_updates_24h));
+    setText("stat-latest-snapshot", fmtSnapshot(stats.latest_snapshot_at));
 
     const biggestDiscountLink = document.getElementById("stat-biggest-discount-link");
     if (biggestDiscountLink && biggestDiscount?.set?.set_number) {
@@ -87,7 +99,7 @@ async function init() {
     setText("stat-biggest-discount", "Unavailable");
     setText("stat-avg-discount", "Unavailable");
     setText("stat-in-stock-coverage", "Unavailable");
-    setText("stat-retail-updates", "Unavailable");
+    setText("stat-latest-snapshot", "Unavailable");
     renderTopDiscounts([]);
   }
 }

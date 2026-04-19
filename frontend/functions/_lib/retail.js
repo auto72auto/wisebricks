@@ -1,4 +1,4 @@
-const RETAILER_CONFIG = [
+export const RETAILER_CONFIG = [
   { retailer_key: "lego_uk", retailer: "LEGO UK", price_col: "lego_uk_price", status_col: "lego_uk_status", url_col: "lego_uk_url" },
   { retailer_key: "amazon_uk", retailer: "Amazon UK", price_col: "amazon_uk_price", status_col: "amazon_uk_status", url_col: "amazon_uk_url" },
   { retailer_key: "smyths", retailer: "Smyths", price_col: "smyths_price", status_col: "smyths_status", url_col: "smyths_url" },
@@ -29,6 +29,42 @@ function toNum(value) {
 function toPositivePrice(value) {
   const parsed = toNum(value);
   return parsed !== null && parsed > 0 ? parsed : null;
+}
+
+export function getBestRetailOffer(snapshot, rrpGbp) {
+  if (!snapshot) return null;
+
+  let bestOffer = null;
+  for (const config of RETAILER_CONFIG) {
+    const price_gbp = toPositivePrice(snapshot[config.price_col]);
+    if (price_gbp === null) continue;
+
+    const discount_gbp =
+      rrpGbp === null ? null : Number((rrpGbp - price_gbp).toFixed(2));
+    const discount_pct =
+      rrpGbp === null || rrpGbp === 0
+        ? null
+        : Number((((rrpGbp - price_gbp) / rrpGbp) * 100).toFixed(1));
+    const offer = {
+      retailer_key: config.retailer_key,
+      retailer: config.retailer,
+      price_gbp,
+      product_url: String(snapshot[config.url_col] || "").trim() || null,
+      discount_gbp,
+      discount_pct,
+    };
+
+    if (
+      !bestOffer ||
+      price_gbp < bestOffer.price_gbp ||
+      (price_gbp === bestOffer.price_gbp &&
+        config.retailer_key.localeCompare(bestOffer.retailer_key) < 0)
+    ) {
+      bestOffer = offer;
+    }
+  }
+
+  return bestOffer;
 }
 
 export function buildRetailerRows(snapshot, rrpGbp) {

@@ -1,4 +1,5 @@
 import { getSql, json } from "../_lib/db.js";
+import { getBestRetailOffer } from "../_lib/retail.js";
 import { normalizeSet } from "../_lib/sets.js";
 
 const RETAILERS_MONITORED = 20;
@@ -48,152 +49,165 @@ export async function onRequestGet(context) {
   try {
     const sql = getSql(context);
 
-    const [summaryRows, moverRows] = await Promise.all([
-      sql`
-        with ranked as (
-          select
-            s.set_number,
-            s.variant,
-            s.rrp_gbp,
-            rs.lowest_retail_price,
-            rs.discount_vs_rrp_pct,
-            rs.retailer_count_active,
-            rs.last_updated,
-            row_number() over (
-              partition by s.set_number
-              order by
-                coalesce(rs.retailer_count_active, 0) desc,
-                case
-                  when s.variant = 1 then 0
-                  when s.variant = 0 then 1
-                  when s.variant = -1 then 2
-                  else 3
-                end asc,
-                s.variant asc
-            ) as rn
-          from sets s
-          left join retail_snapshot rs
-            on rs.set_number = s.set_number
-           and rs.variant = s.variant
-        )
+    const rankedRows = await sql`
+      with ranked as (
         select
-          count(*)::int as tracked_sets,
-          count(*) filter (
-            where lowest_retail_price is not null
-              and rrp_gbp is not null
-              and lowest_retail_price < rrp_gbp
-          )::int as discounted_sets,
-          round(avg(discount_vs_rrp_pct * 100.0) filter (
-            where discount_vs_rrp_pct is not null
-              and lowest_retail_price is not null
-              and rrp_gbp is not null
-              and lowest_retail_price < rrp_gbp
-          ), 1) as avg_discount_pct,
-          round(
-            100.0 * count(*) filter (where coalesce(retailer_count_active, 0) > 0) / nullif(count(*), 0),
-            1
-          ) as in_stock_coverage_pct,
-          max(last_updated) as latest_snapshot_at
-        from ranked
-        where rn = 1
-      `,
-      sql`
-        with ranked as (
-          select
-            s.set_number,
-            s.title,
-            s.piece_count,
-            s.release_date,
-            s.theme_name,
-            s.rrp_gbp,
-            s.image_thumb_url,
-            s.image_box_url,
-            s.image_hero_url,
-            s.variant,
-            rs.lowest_retail_price,
-            rs.lowest_retail_source,
-            rs.discount_vs_rrp_gbp,
-            rs.discount_vs_rrp_pct,
-            rs.retailer_count_active,
-            rs.lego_uk_url,
-            rs.amazon_uk_url,
-            rs.smyths_url,
-            rs.argos_url,
-            rs.john_lewis_url,
-            rs.brick_shack_url,
-            rs.coolshop_url,
-            rs.debenhams_url,
-            rs.downtown_url,
-            rs.hamleys_url,
-            rs.hillians_url,
-            rs.jadlam_url,
-            rs.jarrold_url,
-            rs.roys_url,
-            rs.sainsburys_url,
-            rs.sam_turner_url,
-            rs.tesco_url,
-            rs.wonderland_url,
-            rs.zavvi_url,
-            row_number() over (
-              partition by s.set_number
-              order by
-                coalesce(rs.retailer_count_active, 0) desc,
-                case
-                  when s.variant = 1 then 0
-                  when s.variant = 0 then 1
-                  when s.variant = -1 then 2
-                  else 3
-                end asc,
-                s.variant asc
-            ) as rn
-          from sets s
-          join retail_snapshot rs
-            on rs.set_number = s.set_number
-           and rs.variant = s.variant
-          where rs.lowest_retail_price is not null
-            and s.rrp_gbp is not null
-            and rs.lowest_retail_price < s.rrp_gbp
-        )
-        select *
-        from ranked
-        where rn = 1
-        order by discount_vs_rrp_pct desc nulls last, discount_vs_rrp_gbp desc nulls last, set_number asc
-        limit 3
-      `,
-    ]);
+          s.set_number,
+          s.title,
+          s.piece_count,
+          s.release_date,
+          s.theme_name,
+          s.rrp_gbp,
+          s.image_thumb_url,
+          s.image_box_url,
+          s.image_hero_url,
+          s.variant,
+          rs.retailer_count_active,
+          rs.last_updated,
+          rs.lego_uk_price,
+          rs.lego_uk_url,
+          rs.amazon_uk_price,
+          rs.amazon_uk_url,
+          rs.smyths_price,
+          rs.smyths_url,
+          rs.argos_price,
+          rs.argos_url,
+          rs.john_lewis_price,
+          rs.john_lewis_url,
+          rs.brick_shack_price,
+          rs.brick_shack_url,
+          rs.coolshop_price,
+          rs.coolshop_url,
+          rs.currys_price,
+          rs.currys_url,
+          rs.debenhams_price,
+          rs.debenhams_url,
+          rs.downtown_price,
+          rs.downtown_url,
+          rs.hamleys_price,
+          rs.hamleys_url,
+          rs.hillians_price,
+          rs.hillians_url,
+          rs.jadlam_price,
+          rs.jadlam_url,
+          rs.jarrold_price,
+          rs.jarrold_url,
+          rs.roys_price,
+          rs.roys_url,
+          rs.sainsburys_price,
+          rs.sainsburys_url,
+          rs.sam_turner_price,
+          rs.sam_turner_url,
+          rs.tesco_price,
+          rs.tesco_url,
+          rs.wonderland_price,
+          rs.wonderland_url,
+          rs.zavvi_price,
+          rs.zavvi_url,
+          row_number() over (
+            partition by s.set_number
+            order by
+              coalesce(rs.retailer_count_active, 0) desc,
+              case
+                when s.variant = 1 then 0
+                when s.variant = 0 then 1
+                when s.variant = -1 then 2
+                else 3
+              end asc,
+              s.variant asc
+          ) as rn
+        from sets s
+        left join retail_snapshot rs
+          on rs.set_number = s.set_number
+         and rs.variant = s.variant
+      )
+      select *
+      from ranked
+      where rn = 1
+    `;
 
-    const summary = summaryRows[0] || {};
+    let discountedSets = 0;
+    let discountPctTotal = 0;
+    let discountPctCount = 0;
+    let inStockCount = 0;
+    let latestSnapshotAt = null;
+
+    const moverRows = rankedRows
+      .map((row) => {
+        const rrp = toNum(row.rrp_gbp);
+        const bestOffer = getBestRetailOffer(row, rrp);
+
+        if (toNum(row.retailer_count_active) > 0) {
+          inStockCount += 1;
+        }
+        if (row.last_updated && (!latestSnapshotAt || new Date(row.last_updated) > new Date(latestSnapshotAt))) {
+          latestSnapshotAt = row.last_updated;
+        }
+        if (!bestOffer || rrp === null || bestOffer.price_gbp >= rrp) {
+          return null;
+        }
+
+        discountedSets += 1;
+        if (bestOffer.discount_pct !== null) {
+          discountPctTotal += bestOffer.discount_pct;
+          discountPctCount += 1;
+        }
+
+        return {
+          ...row,
+          computed_best_price_gbp: bestOffer.price_gbp,
+          computed_best_retailer_key: bestOffer.retailer_key,
+          computed_best_retailer_url: bestOffer.product_url,
+          computed_discount_gbp: bestOffer.discount_gbp,
+          computed_discount_pct: bestOffer.discount_pct,
+        };
+      })
+      .filter(Boolean)
+      .sort((a, b) => {
+        if ((b.computed_discount_pct ?? -Infinity) !== (a.computed_discount_pct ?? -Infinity)) {
+          return (b.computed_discount_pct ?? -Infinity) - (a.computed_discount_pct ?? -Infinity);
+        }
+        if ((b.computed_discount_gbp ?? -Infinity) !== (a.computed_discount_gbp ?? -Infinity)) {
+          return (b.computed_discount_gbp ?? -Infinity) - (a.computed_discount_gbp ?? -Infinity);
+        }
+        return String(a.set_number).localeCompare(String(b.set_number));
+      })
+      .slice(0, 3);
+
     const biggestDiscount = moverRows[0] || null;
+    const avgDiscountPct =
+      discountPctCount > 0 ? Number((discountPctTotal / discountPctCount).toFixed(1)) : null;
 
     return json({
       stats: {
-        tracked_sets: Number(summary.tracked_sets || 0),
+        tracked_sets: rankedRows.length,
         retailers_monitored: RETAILERS_MONITORED,
-        discounted_sets: Number(summary.discounted_sets || 0),
-        avg_discount_pct: toPct(summary.avg_discount_pct),
-        in_stock_coverage_pct: toPct(summary.in_stock_coverage_pct),
-        latest_snapshot_at: toIsoOrNull(summary.latest_snapshot_at),
+        discounted_sets: discountedSets,
+        avg_discount_pct: avgDiscountPct,
+        in_stock_coverage_pct:
+          rankedRows.length > 0 ? Number(((inStockCount * 100) / rankedRows.length).toFixed(1)) : null,
+        latest_snapshot_at: toIsoOrNull(latestSnapshotAt),
       },
       biggest_discount: biggestDiscount
         ? {
             set: normalizeSet(biggestDiscount),
-            discount_pct: toPct(biggestDiscount.discount_vs_rrp_pct) == null
-              ? null
-              : Number((toPct(biggestDiscount.discount_vs_rrp_pct) * 100).toFixed(1)),
-            discount_gbp: toNum(biggestDiscount.discount_vs_rrp_gbp),
-            retailer: biggestDiscount.lowest_retail_source || null,
-            retailer_url: pickRetailerUrl(biggestDiscount, biggestDiscount.lowest_retail_source),
+            discount_pct: toPct(biggestDiscount.computed_discount_pct),
+            discount_gbp: toNum(biggestDiscount.computed_discount_gbp),
+            retailer: biggestDiscount.computed_best_retailer_key || null,
+            retailer_url:
+              biggestDiscount.computed_best_retailer_url ||
+              pickRetailerUrl(biggestDiscount, biggestDiscount.computed_best_retailer_key),
           }
         : null,
       top_discounts: moverRows.map((row) => ({
         set: normalizeSet(row),
-        now_price: toNum(row.lowest_retail_price),
-        discount_pct: toPct(row.discount_vs_rrp_pct) == null
-          ? null
-          : Number((toPct(row.discount_vs_rrp_pct) * 100).toFixed(1)),
-        discount_gbp: toNum(row.discount_vs_rrp_gbp),
-        retailer: row.lowest_retail_source || null,
-        retailer_url: pickRetailerUrl(row, row.lowest_retail_source),
+        now_price: toNum(row.computed_best_price_gbp),
+        discount_pct: toPct(row.computed_discount_pct),
+        discount_gbp: toNum(row.computed_discount_gbp),
+        retailer: row.computed_best_retailer_key || null,
+        retailer_url:
+          row.computed_best_retailer_url ||
+          pickRetailerUrl(row, row.computed_best_retailer_key),
         latest_observation_at: toIsoOrNull(row.last_updated),
       })),
     });

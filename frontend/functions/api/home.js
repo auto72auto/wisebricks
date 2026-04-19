@@ -45,6 +45,12 @@ function toIsoOrNull(value) {
   return Number.isNaN(dt.getTime()) ? null : dt.toISOString();
 }
 
+function isLikelyLegoProductUrl(value) {
+  const url = String(value || "").trim().toLowerCase();
+  if (!url) return false;
+  return url.includes("lego");
+}
+
 export async function onRequestGet(context) {
   try {
     const sql = getSql(context);
@@ -143,7 +149,12 @@ export async function onRequestGet(context) {
         if (row.last_updated && (!latestSnapshotAt || new Date(row.last_updated) > new Date(latestSnapshotAt))) {
           latestSnapshotAt = row.last_updated;
         }
-        if (!bestOffer || rrp === null || bestOffer.price_gbp >= rrp) {
+        if (
+          !bestOffer ||
+          rrp === null ||
+          bestOffer.price_gbp >= rrp ||
+          !isLikelyLegoProductUrl(bestOffer.product_url)
+        ) {
           return null;
         }
 

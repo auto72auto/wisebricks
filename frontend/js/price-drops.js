@@ -1,4 +1,4 @@
-﻿import { apiGet, fmtGbp } from "./api-client.js";
+import { apiGet, fmtGbp } from "./api-client.js?v=20260423a";
 
 function escapeHtml(value) {
   return String(value)

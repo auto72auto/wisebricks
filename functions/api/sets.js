@@ -1,5 +1,5 @@
 import { getSql, json } from "../_lib/db.js";
-import { getBestRetailOffer } from "../_lib/retail.js";
+import { buildMarketplaceRows, getBestRetailOffer } from "../_lib/retail.js";
 import { normalizeSet, parsePositiveInt } from "../_lib/sets.js";
 
 function normalizeQuery(query) {
@@ -43,6 +43,29 @@ function compareNullable(a, b, dir = "asc") {
 function compareText(a, b, dir = "asc") {
   const result = String(a || "").localeCompare(String(b || ""), "en-GB", { numeric: true, sensitivity: "base" });
   return dir === "desc" ? -result : result;
+}
+
+function getMarketplaceFallbackOffer(setNumber, row, rrp) {
+  const marketplaceRows = buildMarketplaceRows(setNumber, row, row, rrp);
+  if (!marketplaceRows.length) return null;
+
+  const cheapest = [...marketplaceRows].sort((a, b) => {
+    if (a.price_gbp !== b.price_gbp) return a.price_gbp - b.price_gbp;
+    return String(a.retailer_key || "").localeCompare(String(b.retailer_key || ""), "en-GB");
+  })[0];
+
+  return {
+    retailer_key: cheapest.retailer_key,
+    retailer: cheapest.retailer,
+    price_gbp: cheapest.price_gbp,
+    product_url: cheapest.product_url,
+    discount_gbp:
+      rrp === null ? null : Number((rrp - cheapest.price_gbp).toFixed(2)),
+    discount_pct:
+      rrp === null || rrp === 0
+        ? null
+        : Number((((rrp - cheapest.price_gbp) / rrp) * 100).toFixed(1)),
+  };
 }
 
 export async function onRequestGet(context) {
@@ -119,11 +142,16 @@ export async function onRequestGet(context) {
         rs.wonderland_price,
         rs.wonderland_url,
         rs.zavvi_price,
-        rs.zavvi_url
+        rs.zavvi_url,
+        rs.ebay_uk_new_buy_now_low,
+        ss.bl_new_lowest_ask_gbp
       from sets s
       left join retail_snapshot rs
         on rs.set_number = s.set_number
        and rs.variant = s.variant
+      left join secondary_snapshot ss
+        on ss.set_number = s.set_number
+       and ss.variant = s.variant
       where (
         ${q === ""}
         or s.set_number ilike ${like}
@@ -151,7 +179,8 @@ export async function onRequestGet(context) {
     const enrichedRows = rows.map((row) => {
       const set = normalizeSet(row);
       const rrp = toNum(set.rrp_gbp);
-      const bestOffer = getBestRetailOffer(row, rrp);
+      const bestRetailOffer = getBestRetailOffer(row, rrp);
+      const bestOffer = bestRetailOffer || getMarketplaceFallbackOffer(set.set_number, row, rrp);
       const bestPrice = bestOffer?.price_gbp ?? null;
       const pctBelowRrp =
         bestPrice === null || rrp === null || rrp === 0 || bestPrice >= rrp

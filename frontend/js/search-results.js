@@ -2,11 +2,11 @@ import { apiGet, fmtInt, fmtYear } from "./api-client.js?v=20260220a";
 
 const PAGE_SIZE = 36;
 const PRICE_BUCKETS = [
-  { key: "under_25", label: "Under £25" },
-  { key: "from_25_to_50", label: "£25 to £49.99" },
-  { key: "from_50_to_100", label: "£50 to £99.99" },
-  { key: "from_100_to_200", label: "£100 to £199.99" },
-  { key: "over_200", label: "£200 and above" },
+  { key: "under_25", label: "Under \u00A325" },
+  { key: "from_25_to_50", label: "\u00A325 to \u00A349.99" },
+  { key: "from_50_to_100", label: "\u00A350 to \u00A399.99" },
+  { key: "from_100_to_200", label: "\u00A3100 to \u00A3199.99" },
+  { key: "over_200", label: "\u00A3200 and above" },
   { key: "no_price", label: "No known price" },
 ];
 
@@ -50,8 +50,8 @@ function appendResults(results) {
     const theme = escapeHtml(set.theme || "Theme unavailable");
     const hasRrp = set.rrp_gbp !== null && set.rrp_gbp !== undefined && set.rrp_gbp !== "";
     const hasBestPrice = set.best_current_price_gbp !== null && set.best_current_price_gbp !== undefined && set.best_current_price_gbp !== "";
-    const rrpDisplay = hasRrp ? `£${Number(set.rrp_gbp).toFixed(2)}` : "Price unavailable";
-    const bestPriceDisplay = hasBestPrice ? `£${Number(set.best_current_price_gbp).toFixed(2)}` : rrpDisplay;
+    const rrpDisplay = hasRrp ? `\u00A3${Number(set.rrp_gbp).toFixed(2)}` : "Price unavailable";
+    const bestPriceDisplay = hasBestPrice ? `\u00A3${Number(set.best_current_price_gbp).toFixed(2)}` : "No live price";
     const discountDisplay = set.pct_below_rrp === null || set.pct_below_rrp === undefined || set.pct_below_rrp === ""
       ? "No live discount"
       : `${Number(set.pct_below_rrp).toFixed(1)}% below RRP`;

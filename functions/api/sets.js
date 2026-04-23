@@ -143,8 +143,24 @@ export async function onRequestGet(context) {
         rs.wonderland_url,
         rs.zavvi_price,
         rs.zavvi_url,
-        rs.ebay_uk_new_buy_now_low,
-        ss.bl_new_lowest_ask_gbp
+        coalesce(
+          rs.ebay_uk_new_buy_now_low,
+          (
+            select min(rs2.ebay_uk_new_buy_now_low)
+            from retail_snapshot rs2
+            where rs2.set_number = s.set_number
+              and rs2.ebay_uk_new_buy_now_low is not null
+          )
+        ) as ebay_uk_new_buy_now_low,
+        coalesce(
+          ss.bl_new_lowest_ask_gbp,
+          (
+            select min(ss2.bl_new_lowest_ask_gbp)
+            from secondary_snapshot ss2
+            where ss2.set_number = s.set_number
+              and ss2.bl_new_lowest_ask_gbp is not null
+          )
+        ) as bl_new_lowest_ask_gbp
       from sets s
       left join retail_snapshot rs
         on rs.set_number = s.set_number

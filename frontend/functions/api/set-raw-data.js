@@ -1,4 +1,5 @@
 import { getSql, json } from "../_lib/db.js";
+import { getBestRetailOffer } from "../_lib/retail.js";
 import { normalizeSet, parsePositiveInt } from "../_lib/sets.js";
 import { buildMarketplaceRows, buildRetailerRows, getRetailPriceRange } from "../_lib/retail.js";
 
@@ -117,14 +118,48 @@ export async function onRequestGet(context) {
           extract(year from s.release_date)::int as release_year,
           s.piece_count as pieces,
           s.rrp_gbp,
-          r.lowest_retail_price as best_current_price_gbp,
-          r.lowest_retail_source as best_price_retailer,
-          case
-            when r.lowest_retail_price is null or s.rrp_gbp is null or s.rrp_gbp = 0 then null
-            else round(((r.lowest_retail_price - s.rrp_gbp) / s.rrp_gbp) * 100.0, 1)
-          end as best_price_pct_vs_rrp,
           r.last_updated as latest_observed_at,
-          null::numeric as last_7d_avg_price_gbp
+          null::numeric as last_7d_avg_price_gbp,
+          r.lego_uk_price,
+          r.lego_uk_url,
+          r.amazon_uk_price,
+          r.amazon_uk_url,
+          r.smyths_price,
+          r.smyths_url,
+          r.argos_price,
+          r.argos_url,
+          r.john_lewis_price,
+          r.john_lewis_url,
+          r.brick_shack_price,
+          r.brick_shack_url,
+          r.coolshop_price,
+          r.coolshop_url,
+          r.currys_price,
+          r.currys_url,
+          r.debenhams_price,
+          r.debenhams_url,
+          r.downtown_price,
+          r.downtown_url,
+          r.hamleys_price,
+          r.hamleys_url,
+          r.hillians_price,
+          r.hillians_url,
+          r.jadlam_price,
+          r.jadlam_url,
+          r.jarrold_price,
+          r.jarrold_url,
+          r.roys_price,
+          r.roys_url,
+          r.sainsburys_price,
+          r.sainsburys_url,
+          r.sam_turner_price,
+          r.sam_turner_url,
+          r.tesco_price,
+          r.tesco_url,
+          r.wonderland_price,
+          r.wonderland_url,
+          r.zavvi_price,
+          r.zavvi_url
         from sets s
         left join retail_snapshot r
           on r.set_number = s.set_number
@@ -166,11 +201,31 @@ export async function onRequestGet(context) {
       comparables = [];
     }
 
+    comparables = comparables.map((row) => {
+      const rrp = toNum(row.rrp_gbp);
+      const bestOffer = getBestRetailOffer(row, rrp);
+      return {
+        set_number: row.set_number,
+        title: row.title,
+        theme: row.theme,
+        release_year: row.release_year,
+        pieces: row.pieces,
+        rrp_gbp: rrp,
+        best_current_price_gbp: bestOffer?.price_gbp ?? null,
+        best_price_retailer: bestOffer?.retailer_key ?? null,
+        best_price_pct_vs_rrp:
+          bestOffer?.discount_pct !== null && bestOffer?.discount_pct !== undefined && bestOffer.price_gbp < rrp
+            ? Number((-Math.abs(bestOffer.discount_pct)).toFixed(1))
+            : null,
+        latest_observed_at: row.latest_observed_at,
+        last_7d_avg_price_gbp: row.last_7d_avg_price_gbp,
+      };
+    });
+
     const priceRange = getRetailPriceRange(currentRetailers);
     const snapshot = {
       retailer_count: currentRetailers.length,
-      lowest_current_price_gbp:
-        retailSnapshot?.lowest_retail_price ?? priceRange.lowest_current_price_gbp,
+      lowest_current_price_gbp: priceRange.lowest_current_price_gbp,
       highest_current_price_gbp: priceRange.highest_current_price_gbp,
       latest_observation_at: toIsoOrNull(retailSnapshot?.last_updated),
     };

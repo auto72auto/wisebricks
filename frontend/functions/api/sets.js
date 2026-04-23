@@ -1,4 +1,5 @@
 import { getSql, json } from "../_lib/db.js";
+import { getBestRetailOffer } from "../_lib/retail.js";
 import { normalizeSet, parsePositiveInt } from "../_lib/sets.js";
 
 function normalizeQuery(query) {
@@ -23,6 +24,25 @@ function parseSortBy(value) {
 
 function parseSortDir(value) {
   return value === "desc" ? "desc" : "asc";
+}
+
+function toNum(value) {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function compareNullable(a, b, dir = "asc") {
+  const aNull = a === null || a === undefined;
+  const bNull = b === null || b === undefined;
+  if (aNull && bNull) return 0;
+  if (aNull) return 1;
+  if (bNull) return -1;
+  return dir === "desc" ? b - a : a - b;
+}
+
+function compareText(a, b, dir = "asc") {
+  const result = String(a || "").localeCompare(String(b || ""), "en-GB", { numeric: true, sensitivity: "base" });
+  return dir === "desc" ? -result : result;
 }
 
 export async function onRequestGet(context) {
@@ -60,12 +80,46 @@ export async function onRequestGet(context) {
         s.image_box_url,
         s.image_hero_url,
         s.variant,
-        rs.lowest_retail_price as best_current_price_gbp,
-        rs.lowest_retail_source as best_price_retailer,
-        case
-          when rs.lowest_retail_price is null or s.rrp_gbp is null or s.rrp_gbp = 0 then null
-          else round(((s.rrp_gbp - rs.lowest_retail_price) / s.rrp_gbp) * 100.0, 1)
-        end as pct_below_rrp
+        rs.lego_uk_price,
+        rs.lego_uk_url,
+        rs.amazon_uk_price,
+        rs.amazon_uk_url,
+        rs.smyths_price,
+        rs.smyths_url,
+        rs.argos_price,
+        rs.argos_url,
+        rs.john_lewis_price,
+        rs.john_lewis_url,
+        rs.brick_shack_price,
+        rs.brick_shack_url,
+        rs.coolshop_price,
+        rs.coolshop_url,
+        rs.currys_price,
+        rs.currys_url,
+        rs.debenhams_price,
+        rs.debenhams_url,
+        rs.downtown_price,
+        rs.downtown_url,
+        rs.hamleys_price,
+        rs.hamleys_url,
+        rs.hillians_price,
+        rs.hillians_url,
+        rs.jadlam_price,
+        rs.jadlam_url,
+        rs.jarrold_price,
+        rs.jarrold_url,
+        rs.roys_price,
+        rs.roys_url,
+        rs.sainsburys_price,
+        rs.sainsburys_url,
+        rs.sam_turner_price,
+        rs.sam_turner_url,
+        rs.tesco_price,
+        rs.tesco_url,
+        rs.wonderland_price,
+        rs.wonderland_url,
+        rs.zavvi_price,
+        rs.zavvi_url
       from sets s
       left join retail_snapshot rs
         on rs.set_number = s.set_number
@@ -91,64 +145,49 @@ export async function onRequestGet(context) {
             or (${includeNoPrice} and s.rrp_gbp is null)
           )
         )
-      order by
-        case when ${sortBy} = 'discount' and ${sortDir} = 'desc' then
-          case
-            when rs.lowest_retail_price is null or s.rrp_gbp is null or s.rrp_gbp = 0 then null
-            else ((s.rrp_gbp - rs.lowest_retail_price) / s.rrp_gbp) * 100.0
-          end
-        end desc nulls last,
-        case when ${sortBy} = 'discount' and ${sortDir} = 'asc' then
-          case
-            when rs.lowest_retail_price is null or s.rrp_gbp is null or s.rrp_gbp = 0 then null
-            else ((s.rrp_gbp - rs.lowest_retail_price) / s.rrp_gbp) * 100.0
-          end
-        end asc nulls last,
-        case when ${sortBy} = 'price' and ${sortDir} = 'asc' then s.rrp_gbp end asc nulls last,
-        case when ${sortBy} = 'price' and ${sortDir} = 'desc' then s.rrp_gbp end desc nulls last,
-        case when ${sortBy} = 'set_number' and ${sortDir} = 'asc' then s.set_number end asc,
-        case when ${sortBy} = 'set_number' and ${sortDir} = 'desc' then s.set_number end desc,
-        case when ${sortBy} = 'title' and ${sortDir} = 'asc' then s.title end asc,
-        case when ${sortBy} = 'title' and ${sortDir} = 'desc' then s.title end desc,
-        s.set_number asc,
-        s.variant asc
-      limit ${limit}
-      offset ${offset}
+      order by s.set_number asc, s.variant asc
     `;
 
-    const totalRows = await sql`
-      select count(*)::int as total_count
-      from sets s
-      where (
-        ${q === ""}
-        or s.set_number ilike ${like}
-        or s.title ilike ${like}
-        or coalesce(s.theme_name, '') ilike ${like}
-      )
-        and (
-          ${hasThemes === false}
-          or coalesce(nullif(trim(s.theme_name), ''), 'Unknown') = any(${themes})
-        )
-        and (
-          ${hasPriceBuckets === false}
-          or (
-            (${includeUnder25} and s.rrp_gbp is not null and s.rrp_gbp < 25)
-            or (${include25to50} and s.rrp_gbp is not null and s.rrp_gbp >= 25 and s.rrp_gbp < 50)
-            or (${include50to100} and s.rrp_gbp is not null and s.rrp_gbp >= 50 and s.rrp_gbp < 100)
-            or (${include100to200} and s.rrp_gbp is not null and s.rrp_gbp >= 100 and s.rrp_gbp < 200)
-            or (${includeOver200} and s.rrp_gbp is not null and s.rrp_gbp >= 200)
-            or (${includeNoPrice} and s.rrp_gbp is null)
-          )
-        )
-    `;
+    const enrichedRows = rows.map((row) => {
+      const set = normalizeSet(row);
+      const rrp = toNum(set.rrp_gbp);
+      const bestOffer = getBestRetailOffer(row, rrp);
+      const bestPrice = bestOffer?.price_gbp ?? null;
+      const pctBelowRrp =
+        bestPrice === null || rrp === null || rrp === 0 || bestPrice >= rrp
+          ? null
+          : Number((((rrp - bestPrice) / rrp) * 100).toFixed(1));
 
-    const results = rows.map((r) => ({
-      ...normalizeSet(r),
-      best_current_price_gbp: r.best_current_price_gbp == null ? null : Number(r.best_current_price_gbp),
-      best_price_retailer: r.best_price_retailer || null,
-      pct_below_rrp: r.pct_below_rrp == null ? null : Number(r.pct_below_rrp),
-    }));
-    const totalCount = Number(totalRows?.[0]?.total_count || 0);
+      return {
+        ...set,
+        best_current_price_gbp: bestPrice,
+        best_price_retailer: bestOffer?.retailer_key || null,
+        pct_below_rrp: pctBelowRrp,
+      };
+    });
+
+    enrichedRows.sort((a, b) => {
+      if (sortBy === "discount") {
+        const diff = compareNullable(a.pct_below_rrp, b.pct_below_rrp, sortDir);
+        if (diff !== 0) return diff;
+      } else if (sortBy === "price") {
+        const diff = compareNullable(a.rrp_gbp, b.rrp_gbp, sortDir);
+        if (diff !== 0) return diff;
+      } else if (sortBy === "set_number") {
+        const diff = compareText(a.set_number, b.set_number, sortDir);
+        if (diff !== 0) return diff;
+      } else if (sortBy === "title") {
+        const diff = compareText(a.title, b.title, sortDir);
+        if (diff !== 0) return diff;
+      }
+
+      const setNumberDiff = compareText(a.set_number, b.set_number, "asc");
+      if (setNumberDiff !== 0) return setNumberDiff;
+      return compareNullable(a.variant, b.variant, "asc");
+    });
+
+    const totalCount = enrichedRows.length;
+    const results = enrichedRows.slice(offset, offset + limit);
     return json({
       query: q,
       offset,

@@ -17,7 +17,7 @@ async function init() {
   if (status) status.textContent = "Loading price data...";
 
   try {
-    const payload = await apiGet("/api/price-drops?limit=25");
+    const payload = await apiGet("/api/price-drops?limit=100");
     const rows = payload.rows || [];
 
     if (modeEl) {
@@ -31,9 +31,9 @@ async function init() {
         const setNo = escapeHtml(row.set_number || "Unknown");
         const title = escapeHtml(row.title || "Untitled set");
         const nowPrice = fmtGbp(row.now_price ?? row.rrp_gbp);
-        const prevPrice = row.prev_price == null ? "Unavailable" : fmtGbp(row.prev_price);
-        const change = row.change_pct == null ? "Unavailable" : `${row.change_pct}%`;
-        return `<tr><td><a href='/set-page?set=${encodeURIComponent(setNo)}'>${setNo} - ${title}</a></td><td>${nowPrice}</td><td>${prevPrice}</td><td>${change}</td></tr>`;
+        const rrpPrice = row.rrp_gbp == null ? "Unavailable" : fmtGbp(row.rrp_gbp);
+        const vsRrp = row.vs_rrp_pct == null ? "Unavailable" : `${Number(row.vs_rrp_pct).toFixed(1)}%`;
+        return `<tr><td><a href='/set-page?set=${encodeURIComponent(setNo)}'>${setNo} - ${title}</a></td><td>${nowPrice}</td><td>${rrpPrice}</td><td>${vsRrp}</td></tr>`;
       }).join("");
     }
 
